@@ -8,9 +8,9 @@ import (
 
 // book a time according to this JSON structure
 type Booking struct {
-	Name string `json:"name"`
-	Time string `json:"time"`
-	Store string `json:"store"`
+	Name     string `json:"name"`
+	Time     string `json:"time"`
+	Store    string `json:"store"`
 	PhoneNum string `json:"phone_num"`
 }
 
@@ -33,7 +33,7 @@ func Search_stores(c *gin.Context) {
 */
 
 func Book_time(c *gin.Context) {
-	var booking Booking 
+	var booking Booking
 	err := json.NewDecoder(c.Request.Body).Decode(&booking)
 	// could not parse enough arguments
 	if err != nil {
@@ -44,7 +44,7 @@ func Book_time(c *gin.Context) {
 	}
 
 	// generate confirmation url here somewhere
-	confirmation := "Hej "+booking.Name+"!\n\n"+"Vänligen bekräfta din bokning på "+booking.Store+" klockan "+booking.Time
+	confirmation := "Hej " + booking.Name + "!\n\n" + "Vänligen bekräfta din bokning på " + booking.Store + " klockan " + booking.Time
 	Send_text(c, booking.PhoneNum, confirmation)
 }
 

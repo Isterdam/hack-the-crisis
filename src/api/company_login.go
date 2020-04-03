@@ -1,8 +1,8 @@
-package api 
+package api
 
 import (
-	"github.com/gin-gonic/gin"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
 
 	"encoding/json"
 	"net/http"
@@ -12,7 +12,7 @@ import (
 // jwt key used to create signature
 var jwtKey = []byte(JWTkey)
 
-var users = map[string]string {
+var users = map[string]string{
 	"admin": "admin",
 }
 
@@ -29,7 +29,7 @@ type Claims struct {
 }
 
 func Company_login(c *gin.Context) {
-	var creds Credentials 
+	var creds Credentials
 	// decode HTTP Request Body JSON
 	err := json.NewDecoder(c.Request.Body).Decode(&creds)
 	if err != nil {
@@ -71,8 +71,8 @@ func Company_login(c *gin.Context) {
 
 	// set cookie with token
 	http.SetCookie(c.Writer, &http.Cookie{
-		Name: "token",
-		Value: tokenString,
+		Name:    "token",
+		Value:   tokenString,
 		Expires: expirationTime,
 	})
 }
@@ -98,10 +98,10 @@ func Is_authorized(c *gin.Context) bool {
 	claims := &Claims{}
 
 	// parse jwt and store in claims
-	tkn, err := jwt.ParseWithClaims(tknStr, claims, 
+	tkn, err := jwt.ParseWithClaims(tknStr, claims,
 		func(token *jwt.Token) (interface{}, error) {
 			return jwtKey, nil
-	})
+		})
 	if err != nil {
 		if err == jwt.ErrSignatureInvalid {
 			c.JSON(404, gin.H{

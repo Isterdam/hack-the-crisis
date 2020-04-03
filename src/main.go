@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/Isterdam/hack-the-crisis-backend/src/handlers"
 	"github.com/Isterdam/hack-the-crisis-backend/src/api"
+	"github.com/Isterdam/hack-the-crisis-backend/src/handlers"
 	"github.com/gin-gonic/gin"
 )
 

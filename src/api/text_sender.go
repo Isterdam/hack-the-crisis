@@ -5,8 +5,8 @@ import (
 
 	"bytes"
 	"fmt"
-	"net/url"
 	"net/http"
+	"net/url"
 	"strconv"
 )
 
@@ -15,17 +15,17 @@ import (
 // to_phone structure: "+46...."
 func Send_text(c *gin.Context, to_phone string, confirmation string) {
 	data := url.Values{
-		"from": {"ShopAlone"},
-		"to": {to_phone},
+		"from":    {"ShopAlone"},
+		"to":      {to_phone},
 		"message": {confirmation},
 	}
 
 	c.Request, _ = http.NewRequest("POST", "https://api.46elks.com/a1/SMS", bytes.NewBufferString(data.Encode()))
-    c.Request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-    c.Request.Header.Add("Content-Length", strconv.Itoa(len(data.Encode())))
-    c.Request.SetBasicAuth(PhoneUser, PhonePass)
+	c.Request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	c.Request.Header.Add("Content-Length", strconv.Itoa(len(data.Encode())))
+	c.Request.SetBasicAuth(PhoneUser, PhonePass)
 
-    client := &http.Client{}
+	client := &http.Client{}
 	resp, err := client.Do(c.Request)
 	if err != nil {
 		fmt.Println("Could not do request!")
