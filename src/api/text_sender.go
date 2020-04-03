@@ -12,7 +12,7 @@ import (
 
 // PhoneUser and PhonePass have been initialized
 
-// to_phone structure: "+46...."
+// to_phone structure: "+46....", confirmation is the string that is sent
 func Send_text(c *gin.Context, to_phone string, confirmation string) {
 	data := url.Values{
 		"from":    {"ShopAlone"},
