@@ -25,6 +25,9 @@ func (db *DB) prepare(key, query string) error {
 func InitDB() (*DB, error) {
 
 	dbConn, err := sqlx.Connect("postgres", "user="+os.Getenv("DBUSER")+" dbname="+os.Getenv("DBDB")+" host="+os.Getenv("DBHOST")+" password="+os.Getenv("DBPASS"))
+	if err != nil {
+		return nil, err
+	}
 	dbb := DB{DB: dbConn, prepared: make(map[string]*sqlx.Stmt)}
 
 	err = prepareQueries(&dbb)

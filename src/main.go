@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/Isterdam/hack-the-crisis-backend/src/db"
 	"github.com/Isterdam/hack-the-crisis-backend/src/handlers"
@@ -17,6 +18,7 @@ func main() {
 
 	if err != nil {
 		fmt.Printf("%s", err)
+		log.Fatal(err)
 	}
 
 	r.Use(cors.Default())
