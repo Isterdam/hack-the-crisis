@@ -1,5 +1,6 @@
 package handlers
 
+/*
 import (
 	"github.com/Isterdam/hack-the-crisis-backend/src/api"
 	"github.com/gin-gonic/gin"
@@ -20,3 +21,4 @@ func Init_public_routes(r *gin.Engine) {
 
 	r.GET("/book", api.Get_ticket) // /book?code={code} -> c.Query("code")
 }
+*/

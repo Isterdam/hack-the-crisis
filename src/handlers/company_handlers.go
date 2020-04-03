@@ -1,5 +1,6 @@
 package handlers
 
+/*
 import (
 	"github.com/Isterdam/hack-the-crisis-backend/src/api"
 	"github.com/gin-gonic/gin"
@@ -24,3 +25,4 @@ func Init_company_routes(r *gin.Engine) {
 	// scan qr code
 	r.GET("/company/code", api.Get_code) // /company/slots/code?code={code} -> c.Query("code")
 }
+*/

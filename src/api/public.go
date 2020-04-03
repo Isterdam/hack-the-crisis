@@ -1,5 +1,6 @@
 package api
 
+/*
 import (
 	"github.com/gin-gonic/gin"
 )
@@ -35,3 +36,4 @@ func Unbook(c *gin.Context) {
 func Get_ticket(c *gin.Context) {
 
 }
+*/

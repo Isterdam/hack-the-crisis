@@ -1,5 +1,6 @@
 package api
 
+/*
 import (
 	"github.com/gin-gonic/gin"
 )
@@ -37,5 +38,6 @@ func Get_slot(c *gin.Context) {
 }
 
 func Get_code(c *gin.Context) {
-	
+
 }
+*/
