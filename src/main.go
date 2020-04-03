@@ -1,17 +1,17 @@
 package main
 
 import (
-	"github.com/Isterdam/hack-the-crisis-backend/src/handlers/"
+	"github.com/Isterdam/hack-the-crisis-backend/src/handlers"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	r := gin.Default()
 
-	public.init_public_handlers(r)
+	// handlers.Init_public_routes(r)
+	// handlers.Init_company_routes(r)
 
-	// r.GET("/", root)
-	// r.POST("/register", register_company)
+	r.GET("/", root)
 
 	r.Run(":8080")
 }

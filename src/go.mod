@@ -1,4 +1,4 @@
-module github.com/Isterdam/hack-the-crisis-backend
+module github.com/Isterdam/hack-the-crisis-backend/src
 
 go 1.14
 

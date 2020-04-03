@@ -1,26 +1,26 @@
 package handlers
 
 import (
-	"github.com/Isterdam/hack-the-crisis-backend/src/api/company"
+	"github.com/Isterdam/hack-the-crisis-backend/src/api"
 	"github.com/gin-gonic/gin"
 )
 
-func init_company_routes(r *gin.Engine) {
-	r.POST("/company", company.add_company)
-	r.GET("/company", company.get_company)
-	r.PATCH("/company", company.update_company)
+func Init_company_routes(r *gin.Engine) {
+	r.POST("/company", api.Add_company)
+	r.GET("/company", api.Get_company)
+	r.PATCH("/company", api.Update_company)
 
 	// to log in
-	r.POST("/company/login", company.company_login)
+	r.POST("/company/login", api.Company_login)
 
 	// with company token
-	r.POST("/company/slots", company.add_slots)
-	r.GET("/company/slots", company.get_slots)
-	r.PATCH("/company/slots", company.update_slots)
+	r.POST("/company/slots", api.Add_slots)
+	r.GET("/company/slots", api.Get_slots)
+	r.PATCH("/company/slots", api.Update_slots)
 
 	// get specific slot
-	r.GET("/company/slots/id", company.get_slot) // /company/slots/id?id={id} -> c.Query("id")
+	r.GET("/company/slots/id", api.Get_slot) // /company/slots/id?id={id} -> c.Query("id")
 
 	// scan qr code
-	r.GET("/company/code", company.get_code) // /company/slots/code?code={code} -> c.Query("code")
+	r.GET("/company/code", api.Get_code) // /company/slots/code?code={code} -> c.Query("code")
 }
