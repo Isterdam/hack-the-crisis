@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/Isterdam/hack-the-crisis-backend/src/api"
 	"github.com/Isterdam/hack-the-crisis-backend/src/db"
 	"github.com/Isterdam/hack-the-crisis-backend/src/handlers"
 	"github.com/gin-contrib/cors"
@@ -13,6 +14,9 @@ import (
 func main() {
 	r := gin.Default()
 
+	api.Initialize_constants()
+	handlers.Init_public_routes(r)
+	
 	sql, err := db.InitDB()
 
 	if err != nil {
