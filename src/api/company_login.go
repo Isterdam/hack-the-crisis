@@ -10,8 +10,7 @@ import (
 )
 
 // jwt key used to create signature
-// separate file and gitignore true code
-var jwtKey = []byte("super_secret_placeholder_key")
+var jwtKey = []byte(JWTkey)
 
 var users = map[string]string {
 	"admin": "admin",
