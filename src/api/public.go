@@ -3,7 +3,12 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 
+	"fmt"
 	"encoding/json"
+	"time"
+	"math/rand"
+	"strconv"
+	"strings"
 )
 
 // book a time according to this JSON structure
@@ -43,16 +48,33 @@ func Book_time(c *gin.Context) {
 		return
 	}
 
+	ticketCode := generateTicketCode(booking)
+	// DOES THIS ACTUALLY GIVE CURRENT URL?
+	url := c.Request.URL.RequestURI() + "/confirm/?code=" + ticketCode
 	// generate confirmation url here somewhere
-	confirmation := "Hej " + booking.Name + "!\n\n" + "Vänligen bekräfta din bokning på " + booking.Store + " klockan " + booking.Time
-	Send_text(c, booking.PhoneNum, confirmation)
+	confirmation := "Hej " + booking.Name + "!\n\n" + "Vänligen bekräfta din bokning på " + booking.Store + " klockan " + booking.Time + "\n\n" + url
+
+	fmt.Println(confirmation)
+	
+	// UNCOMMENT THIS TO SEND TEXT
+	// Send_text(c, booking.PhoneNum, confirmation)
+}
+
+func generateTicketCode(booking Booking) string {
+	// current time + random num [0, 100) + booking name (where space is replaced by underscore)
+	return strconv.FormatInt(time.Now().Unix(), 10) + strconv.Itoa(rand.Intn(100)) + strings.ReplaceAll(booking.Name, " ", "_")
+}
+
+func Book_confirm(c *gin.Context) {
+	ticketCode := c.Query("code")
+	// add ticket to database here
+	c.JSON(200, gin.H{
+		"message": "Ticket confirmed yihoo!",
+		"code": ticketCode,
+	})
 }
 
 /*
-func Book_confirm(c *gin.Context) {
-
-}
-
 func Unbook(c *gin.Context) {
 
 }
