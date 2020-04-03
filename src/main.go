@@ -1,14 +1,30 @@
 package main
 
 import (
+	"fmt"
+
+	"github.com/Isterdam/hack-the-crisis-backend/src/db"
 	"github.com/Isterdam/hack-the-crisis-backend/src/handlers"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	_ "github.com/lib/pq"
 )
 
 func main() {
 	r := gin.Default()
 
-	// handlers.Init_public_routes(r)
+	sql, err := db.InitDB()
+
+	if err != nil {
+		fmt.Printf("%s", err)
+	}
+
+	r.Use(cors.Default())
+
+	r.Use(func(c *gin.Context) {
+		c.Set("db", sql)
+	})
+
 	handlers.Init_company_routes(r)
 
 	r.GET("/", root)
