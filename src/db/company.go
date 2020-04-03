@@ -8,10 +8,10 @@ func GetCompanyByID(db *DB, id int) (Company, error) {
 	return comp, err
 }
 
-func GetCompanies(db *DB) (Company, error) {
+func GetCompanies(db *DB) ([]Company, error) {
 	stmt := db.prepared["company/get"]
-	comp := Company{}
-	err := stmt.Get(&comp)
+	comps := []Company{}
+	err := stmt.Select(&comps)
 
-	return comp, err
+	return comps, err
 }

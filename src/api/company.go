@@ -17,7 +17,7 @@ func Get_company(c *gin.Context) {
 	}
 	dbbb := dbb.(*db.DB)
 
-	comp, _ := db.GetCompanyByID(dbbb, 1)
+	comp, _ := db.GetCompanies(dbbb)
 
 	c.JSON(200, comp)
 }
