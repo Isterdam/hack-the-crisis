@@ -2,6 +2,7 @@ package db
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -22,7 +23,8 @@ func (db *DB) prepare(key, query string) error {
 }
 
 func InitDB() (*DB, error) {
-	dbConn, err := sqlx.Connect("postgres", "user=root dbname=corona host='hackthecrisis.c8e6qltbhtn7.eu-north-1.rds.amazonaws.com' password='XKerP8P73XtL9w2'")
+
+	dbConn, err := sqlx.Connect("postgres", "user="+os.Getenv("DBUSER")+" dbname="+os.Getenv("DBDB")+" host="+os.Getenv("DBHOST")+" password="+os.Getenv("DBPASS"))
 	dbb := DB{DB: dbConn, prepared: make(map[string]*sqlx.Stmt)}
 
 	err = prepareQueries(&dbb)
