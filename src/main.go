@@ -13,9 +13,6 @@ import (
 
 func main() {
 	r := gin.Default()
-
-	api.Initialize_constants()
-	handlers.Init_public_routes(r)
 	
 	sql, err := db.InitDB()
 
@@ -29,6 +26,8 @@ func main() {
 		c.Set("db", sql)
 	})
 
+	api.Initialize_constants()
+	handlers.Init_public_routes(r)
 	handlers.Init_company_routes(r)
 
 	r.GET("/", root)
