@@ -14,7 +14,7 @@ import (
 
 func main() {
 	r := gin.Default()
-	
+
 	sql, err := db.InitDB()
 
 	if err != nil {
