@@ -25,7 +25,7 @@ type Credentials struct {
 
 // will be encoded to JWT
 type Claims struct {
-	Email string `json:"email"`
+	ID int `json:"id"`
 	jwt.StandardClaims
 }
 
@@ -69,12 +69,13 @@ func Company_login(c *gin.Context) {
 		})
 		return
 	}
+
 	// set expiration to now + 30 mins
 	// fill claims with username and standard
 	loc, _ := time.LoadLocation("Europe/Stockholm")
 	expirationTime := time.Now().In(loc).Add(12 * time.Hour)
 	claims := &Claims{
-		Email: loginComp.Email.String,
+		ID: int(loginComp.ID.Int64),
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
 		},
