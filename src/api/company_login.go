@@ -8,9 +8,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 
-	"os"
 	"encoding/json"
 	"net/http"
+	"os"
 	"time"
 )
 

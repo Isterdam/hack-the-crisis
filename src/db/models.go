@@ -25,7 +25,7 @@ type Company struct {
 	CNumber    null.String `db:"contact_number" json:"contact_number"`
 	Verified   null.Bool   `db:"verified" json:"verified"`
 	Email      null.String `db:"email" json:"email"`
-	Password   null.String `db:"password" json:"password"`
+	Password   null.String `db:"password" json:"password,omitempty"`
 }
 
 type CompanyPublic struct {
