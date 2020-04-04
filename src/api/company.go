@@ -3,9 +3,11 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 
 	"github.com/Isterdam/hack-the-crisis-backend/src/db"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func Add_company(c *gin.Context) {
@@ -23,7 +25,13 @@ func Add_company(c *gin.Context) {
 		return
 	}
 
-	fmt.Printf("%#v\n", dbbb)
+	hash, err := bcrypt.GenerateFromPassword([]byte(comp.Password.String), bcrypt.MinCost)
+	if err != nil {
+		log.Println(err)
+	}
+
+	comp.Password.String = string(hash)
+
 	err = db.InsertCompany(dbbb, comp)
 
 	if err != nil {

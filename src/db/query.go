@@ -16,6 +16,6 @@ var queries = []KVP{
 	KVP{K: "company/update/location", V: "UPDATE company SET name=$2, adress=$3, city=$4, country=$5, post_code=$6 WHERE id=$1 RETURNING *"},
 	KVP{K: "company/update/contact", V: " UPDATE company SET contact_firstname=$2, contact_lastname=$3, contact_number=$4 WHERE id=$1 RETURNING *"},
 	KVP{K: "company/update/password", V: "UPDATE company SET password=$2 WHERE id=$1 RETURNING *"},
-	KVP{K: "company/login", V: "SELECT id FROM company WHERE email=$1 AND password=$2"},
+	KVP{K: "company/login", V: "SELECT * FROM company WHERE email=$1"},
 	KVP{K: "company/slot/get", V: "SELECT * FROM slots WHERE id=$1"},
 }
