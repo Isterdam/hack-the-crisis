@@ -12,18 +12,18 @@ type Slot struct {
 }
 
 type Company struct {
-	ID         null.Int    `db:"id"`
-	Name       null.String `db:"name"`
-	Adress     null.String `db:"adress"`
-	City       null.String `db:"city"`
-	Country    null.String `db:"country"`
-	PostCode   null.String `db:"post_code"`
-	CFirstName null.String `db:"contact_firstname"`
-	CLastName  null.String `db:"contact_lastname"`
-	CNumber    null.String `db:"contact_number"`
-	Verified   null.Bool   `db:"verified"`
-	Email      null.String `db:"email"`
-	Password   null.String `db:"password"`
+	ID         null.Int    `db:"id" json:"id"`
+	Name       null.String `db:"name" json:"name"`
+	Adress     null.String `db:"adress" json:"adress"`
+	City       null.String `db:"city" json:"city"`
+	Country    null.String `db:"country" json:"country"`
+	PostCode   null.String `db:"post_code" json:"post_code"`
+	CFirstName null.String `db:"contact_firstname" json:"contact_firstname"`
+	CLastName  null.String `db:"contact_lastname" json:"contact_lastname"`
+	CNumber    null.String `db:"contact_number" json:"contact_number"`
+	Verified   null.Bool   `db:"verified" json:"verified"`
+	Email      null.String `db:"email" json:"email"`
+	Password   null.String `db:"password" json:"password"`
 }
 
 type Booking struct {
