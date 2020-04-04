@@ -1,9 +1,12 @@
 package api
 
 import (
+	"fmt"
+
 	"github.com/Isterdam/hack-the-crisis-backend/src/db"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 
 	"encoding/json"
 	"net/http"
@@ -42,19 +45,25 @@ func Company_login(c *gin.Context) {
 	}
 	dbbb := dbb.(*db.DB)
 
-	id, err := db.VerifyLoginCompany(dbbb, comp)
+	loginComp, err := db.GetCompanyByEmail(dbbb, comp.Email.String)
 
 	if err != nil {
-		c.JSON(200, gin.H{
+		fmt.Println(err)
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(loginComp.Password.String), []byte(comp.Password.String))
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(401, gin.H{
 			"message": "Unauthorized",
 		})
 		return
 	}
 
-	loginComp, err := db.GetCompanyByID(dbbb, int(id))
+	loginComp, err = db.GetCompanyByID(dbbb, int(loginComp.ID.Int64))
 
 	if err != nil {
-		c.JSON(500, gin.H{
+		c.JSON(401, gin.H{
 			"message": "Unauthorized",
 		})
 		return
@@ -74,8 +83,8 @@ func Company_login(c *gin.Context) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(jwtKey)
 	if err != nil {
-		c.JSON(500, gin.H{
-			"message": "Internal server error",
+		c.JSON(401, gin.H{
+			"message": "Unauthorized",
 		})
 		return
 	}

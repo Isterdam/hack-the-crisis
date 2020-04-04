@@ -48,11 +48,11 @@ func UpdateCompany(db *DB, comp Company) (Company, error) {
 	return newComp, err
 }
 
-func VerifyLoginCompany(db *DB, comp Company) (int64, error) {
+func GetCompanyByEmail(db *DB, email string) (Company, error) {
 	stmt := db.prepared["company/login"]
 
 	retComp := Company{}
-	err := stmt.Get(&retComp, comp.Email, comp.Password)
+	err := stmt.Get(&retComp, email)
 
-	return retComp.ID.Int64, err
+	return retComp, err
 }
