@@ -23,7 +23,7 @@ func Init_company_routes(r *gin.Engine) {
 	// get specific slot
 	r.GET("/company/slots/id", api.Get_slot) // /company/slots/id?id={id} -> c.Query("id")
 	/*
-		// scan qr code
-		r.GET("/company/code", api.Get_code) // /company/slots/code?code={code} -> c.Query("code")
+	// scan qr code
+	r.GET("/company/code", api.Get_code) // /company/slots/code?code={code} -> c.Query("code")
 	*/
 }
