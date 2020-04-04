@@ -13,10 +13,6 @@ import (
 // jwt key used to create signature
 var jwtKey = []byte(JWTkey)
 
-var users = map[string]string{
-	"admin": "admin",
-}
-
 // reads credentials from request body
 type Credentials struct {
 	Password string `json:"password"`
@@ -65,7 +61,8 @@ func Company_login(c *gin.Context) {
 	}
 	// set expiration to now + 30 mins
 	// fill claims with username and standard
-	expirationTime := time.Now().Add(30 * time.Minute)
+	loc, _ := time.LoadLocation("Europe/Stockholm")
+	expirationTime := time.Now().In(loc).Add(12 * time.Hour)
 	claims := &Claims{
 		Email: loginComp.Email.String,
 		StandardClaims: jwt.StandardClaims{
@@ -91,6 +88,7 @@ func Company_login(c *gin.Context) {
 	})
 	c.JSON(200, gin.H{
 		"message": "Success",
+		"token": tokenString,
 	})
 }
 

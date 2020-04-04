@@ -101,11 +101,31 @@ func Update_slots(c *gin.Context) {
 	}
 }
 
-/*
 func Get_slot(c *gin.Context) {
+	dbb, exist := c.Get("db")
+	if !exist {
+		return
+	}
+	dbbb := dbb.(*db.DB)
 
+	var slot db.Slot
+	err := json.NewDecoder(c.Request.Body).Decode(&slot)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	var newSlot db.Slot
+	newSlot, err = db.GetSlot(dbbb, int(slot.ID.Int64))
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	c.JSON(200, newSlot)
 }
 
+/*
 func Get_code(c *gin.Context) {
 
 }
