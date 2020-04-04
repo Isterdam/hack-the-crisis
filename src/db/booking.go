@@ -15,3 +15,10 @@ func GetBooking(db *DB, code string) (Booking, error) {
 	
 	return book, err
 }
+
+func RemoveBooking(db *DB, code string) (error) {
+	stmt := db.prepared["book/remove"]
+	_, err := stmt.Exec(code)
+
+	return err
+}

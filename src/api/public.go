@@ -100,11 +100,21 @@ func Book_confirm(c *gin.Context) {
 	}
 }
 
-/*
 func Unbook(c *gin.Context) {
+	code := c.Query("code")
 
+	dbb, exist := c.Get("db")
+	if !exist {
+		return
+	}
+	dbbb := dbb.(*db.DB)
+
+	err := db.RemoveBooking(dbbb, code)
+	if err != nil {
+		fmt.Println(err)
+		fmt.Println("Could not remove booking!")
+	}
 }
-*/
 
 func Get_ticket(c *gin.Context) {
 	code := c.Query("code")
