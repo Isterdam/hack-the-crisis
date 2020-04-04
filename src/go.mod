@@ -9,5 +9,6 @@ require (
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/lib/pq v1.0.0
 	github.com/skip2/go-qrcode v0.0.0-20191027152451-9434209cb086
+	golang.org/x/crypto v0.0.0-20200403201458-baeed622b8d8
 	gopkg.in/guregu/null.v3 v3.4.0
 )

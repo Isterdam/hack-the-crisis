@@ -3,10 +3,10 @@ package api
 import (
 	"github.com/Isterdam/hack-the-crisis-backend/src/db"
 
-	"sync"
-	"time"
 	"io/ioutil"
 	"strings"
+	"sync"
+	"time"
 )
 
 var JWTkey string

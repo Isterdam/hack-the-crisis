@@ -6,12 +6,12 @@ import (
 	// "github.com/skip2/go-qrcode"
 	"github.com/gin-gonic/gin"
 
-	"fmt"
 	"encoding/json"
-	"time"
+	"fmt"
 	"math/rand"
 	"strconv"
 	"strings"
+	"time"
 )
 
 /*
@@ -57,20 +57,20 @@ func Book_time(c *gin.Context) {
 		return
 	}
 	dbbb := dbb.(*db.DB)
-	
+
 	store, _ := db.GetCompanyByID(dbbb, int(booking.ID.Int64))
 	timeSlot, _ := db.GetSlot(dbbb, int(booking.SlotID.Int64))
-	
+
 	timeStart := timeSlot.StartTime.Time
 	timeStop := timeSlot.EndTime.Time
 
 	var timeStr string
-	timeStr = strconv.Itoa(timeStart.Hour()) + ":" + strconv.Itoa(timeStart.Minute()) + "-" + strconv.Itoa(timeStop.Hour()) + ":" + strconv.Itoa(timeStop.Minute()) 
+	timeStr = strconv.Itoa(timeStart.Hour()) + ":" + strconv.Itoa(timeStart.Minute()) + "-" + strconv.Itoa(timeStop.Hour()) + ":" + strconv.Itoa(timeStop.Minute())
 
 	confirmation := "Hej " + booking.FirstName.String + "!\n\n" + "Vänligen bekräfta din bokning på " + store.Name.String + " klockan " + timeStr + "\n\n" + url
 
 	fmt.Println(confirmation)
-	
+
 	// UNCOMMENT THIS TO SEND TEXT
 	// Send_text(c, booking.PhoneNum, confirmation)
 }
@@ -91,7 +91,7 @@ func Book_confirm(c *gin.Context) {
 
 		db.InsertBooking(dbbb, Confirmed[ticketCode])
 
-		url := strings.Split(c.Request.URL.Hostname() + c.Request.URL.Path, "?")[0] + "/get?code=" + ticketCode
+		url := strings.Split(c.Request.URL.Hostname()+c.Request.URL.Path, "?")[0] + "/get?code=" + ticketCode
 		confirmation := "Du har nu bekräftat din bokning!\n\nBiljetten hittar du i länken nedan:\n" + url
 
 		fmt.Println(confirmation)
@@ -124,7 +124,7 @@ func Unbook(c *gin.Context) {
 
 func Get_ticket(c *gin.Context) {
 	code := c.Query("code")
-	
+
 	dbb, exist := c.Get("db")
 	if !exist {
 		return

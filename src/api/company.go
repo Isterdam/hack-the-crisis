@@ -87,27 +87,77 @@ func Update_company(c *gin.Context) {
 }
 
 func Add_slots(c *gin.Context) {
-	if Is_authorized(c) {
-		c.JSON(200, gin.H{
-			"message": "Added slots successfully!",
-		})
+	if !Is_authorized(c) {
+		return
+	}
+	dbb, exist := c.Get("db")
+	if !exist {
+		return
+	}
+	dbbb := dbb.(*db.DB)
+
+	var slots []db.Slot
+	err := json.NewDecoder(c.Request.Body).Decode(&slots)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	for _, slot := range slots {
+		db.AddSlot(dbbb, slot)
 	}
 }
 
 func Get_slots(c *gin.Context) {
-	if Is_authorized(c) {
-		c.JSON(200, gin.H{
-			"message": "Got slots successfully!",
-		})
+	if !Is_authorized(c) {
+		return
 	}
+	dbb, exist := c.Get("db")
+	if !exist {
+		return
+	}
+	dbbb := dbb.(*db.DB)
+
+	var comp db.Company
+	err := json.NewDecoder(c.Request.Body).Decode(&comp)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	var slots []db.Slot
+	slots, err = db.GetSlotsByCompany(dbbb, int(comp.ID.Int64))
+	if err != nil {
+		fmt.Println(err)
+	}
+	c.JSON(200, slots)
 }
 
-func Update_slots(c *gin.Context) {
-	if Is_authorized(c) {
-		c.JSON(200, gin.H{
-			"message": "Updated slots successfully!",
-		})
+func Update_slot(c *gin.Context) {
+	if !Is_authorized(c) {
+		return
 	}
+	dbb, exist := c.Get("db")
+	if !exist {
+		return
+	}
+	dbbb := dbb.(*db.DB)
+
+	var slot db.Slot
+	err := json.NewDecoder(c.Request.Body).Decode(&slot)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	var newSlot db.Slot
+	newSlot, err = db.UpdateSlot(dbbb, slot)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	c.JSON(200, newSlot)
 }
 
 func Get_slot(c *gin.Context) {
