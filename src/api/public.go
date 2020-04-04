@@ -22,11 +22,38 @@ func Reserve_time(c *gin.Context) {
 func Get_stores(c *gin.Context) {
 
 }
+*/
 
 func Get_store_slots(c *gin.Context) {
+	dayStr := c.Query("day")
+	day, _ := strconv.Atoi(dayStr)
 
+	dbb, exist := c.Get("db")
+	if !exist {
+		return
+	}
+	dbbb := dbb.(*db.DB)
+
+	var comp db.Company
+	err := json.NewDecoder(c.Request.Body).Decode(&comp)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	slots, _ := db.GetSlotsByCompany(dbbb, int(comp.ID.Int64))
+
+	var slotsByDay []db.Slot
+	for _, slot := range slots {
+		if int(slot.Day.Int64) == day {
+			slotsByDay = append(slotsByDay, slot)
+		} 
+	}
+
+	c.JSON(200, slotsByDay)
 }
 
+/*
 func Search_stores(c *gin.Context) {
 
 }
@@ -51,7 +78,6 @@ func Book_time(c *gin.Context) {
 	// DOES THIS ACTUALLY GIVE CURRENT URL?
 	url := c.Request.URL.Hostname() + c.Request.URL.Path + "/confirm/?code=" + ticketCode
 
-	// generate confirmation url
 	dbb, exist := c.Get("db")
 	if !exist {
 		return
