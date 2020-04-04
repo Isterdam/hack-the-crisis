@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math"
 
 	"github.com/Isterdam/hack-the-crisis-backend/src/db"
 	"github.com/gin-gonic/gin"
@@ -181,6 +182,43 @@ func Get_slot(c *gin.Context) {
 	}
 
 	c.JSON(200, newSlot)
+}
+
+func GetCompanyDistance(c *gin.Context) {
+	var dist db.Distance
+	err := json.NewDecoder(c.Request.Body).Decode(&dist)
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(404, gin.H{
+			"message": "Page not found",
+		})
+		return
+	}
+
+	dist.R = float64(dist.Distance) / 6371
+
+	r := dist.R
+	dist.LatMax = dist.Latitude + r
+	dist.LatMin = dist.Latitude - r
+
+	dlon := math.Asin(math.Sin(r) / math.Cos(dist.Latitude))
+
+	dist.LonMin = dist.Longitude - dlon
+	dist.LonMax = dist.Longitude + dlon
+
+	dbb, exist := c.Get("db")
+	if !exist {
+		return
+	}
+	dbbb := dbb.(*db.DB)
+
+	comps, err := db.GetCompaniesWithinDistance(dbbb, dist)
+
+	if err != nil {
+		return
+	}
+
+	c.JSON(200, comps)
 }
 
 /*
