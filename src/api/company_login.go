@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/Isterdam/hack-the-crisis-backend/src/db"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 
@@ -24,14 +25,14 @@ type Credentials struct {
 
 // will be encoded to JWT
 type Claims struct {
-	Username string `json:"username"`
+	Email string `json:"email"`
 	jwt.StandardClaims
 }
 
 func Company_login(c *gin.Context) {
-	var creds Credentials
+	var comp db.Company
 	// decode HTTP Request Body JSON
-	err := json.NewDecoder(c.Request.Body).Decode(&creds)
+	err := json.NewDecoder(c.Request.Body).Decode(&comp)
 	if err != nil {
 		c.JSON(404, gin.H{
 			"message": "Page not found",
@@ -39,21 +40,34 @@ func Company_login(c *gin.Context) {
 		return
 	}
 
-	// GET PASSWORD FROM DATABASE OR SOMETHING HERE
-	expectedPassword, ok := users[creds.Username] // placeholder
+	dbb, exist := c.Get("db")
+	if !exist {
+		return
+	}
+	dbbb := dbb.(*db.DB)
 
-	if !ok || expectedPassword != creds.Password {
-		c.JSON(404, gin.H{
+	id, err := db.VerifyLoginCompany(dbbb, comp)
+
+	if err != nil {
+		c.JSON(200, gin.H{
 			"message": "Unauthorized",
 		})
 		return
 	}
 
+	loginComp, err := db.GetCompanyByID(dbbb, int(id))
+
+	if err != nil {
+		c.JSON(500, gin.H{
+			"message": "Unauthorized",
+		})
+		return
+	}
 	// set expiration to now + 30 mins
 	// fill claims with username and standard
 	expirationTime := time.Now().Add(30 * time.Minute)
 	claims := &Claims{
-		Username: creds.Username,
+		Email: loginComp.Email.String,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
 		},
@@ -63,7 +77,7 @@ func Company_login(c *gin.Context) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(jwtKey)
 	if err != nil {
-		c.JSON(404, gin.H{
+		c.JSON(500, gin.H{
 			"message": "Internal server error",
 		})
 		return
@@ -74,6 +88,9 @@ func Company_login(c *gin.Context) {
 		Name:    "token",
 		Value:   tokenString,
 		Expires: expirationTime,
+	})
+	c.JSON(200, gin.H{
+		"message": "Success",
 	})
 }
 

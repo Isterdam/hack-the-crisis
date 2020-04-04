@@ -5,7 +5,7 @@ import "fmt"
 func GetCompanyByID(db *DB, id int) (Company, error) {
 	stmt := db.prepared["company/getByID"]
 	comp := Company{}
-	err := stmt.Get(&comp, 1)
+	err := stmt.Get(&comp, id)
 
 	return comp, err
 }
@@ -46,4 +46,13 @@ func UpdateCompany(db *DB, comp Company) (Company, error) {
 	err = stmt.QueryRowx(comp.ID, comp.Password).StructScan(&newComp)
 
 	return newComp, err
+}
+
+func VerifyLoginCompany(db *DB, comp Company) (int64, error) {
+	stmt := db.prepared["company/login"]
+
+	retComp := Company{}
+	err := stmt.Get(&retComp, comp.Email, comp.Password)
+
+	return retComp.ID.Int64, err
 }
