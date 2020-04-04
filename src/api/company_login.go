@@ -108,12 +108,12 @@ func Is_authorized(c *gin.Context) bool {
 	t, err := c.Request.Cookie("token")
 	if err != nil {
 		if err == http.ErrNoCookie {
-			c.JSON(404, gin.H{
+			c.JSON(401, gin.H{
 				"message": "Unauthorized",
 			})
 			return false
 		}
-		c.JSON(404, gin.H{
+		c.JSON(400, gin.H{
 			"message": "Bad request",
 		})
 		return false
@@ -130,18 +130,18 @@ func Is_authorized(c *gin.Context) bool {
 		})
 	if err != nil {
 		if err == jwt.ErrSignatureInvalid {
-			c.JSON(404, gin.H{
+			c.JSON(401, gin.H{
 				"message": "Unauthorized",
 			})
 			return false
 		}
-		c.JSON(404, gin.H{
+		c.JSON(400, gin.H{
 			"message": "Bad request",
 		})
 		return false
 	}
 	if !tkn.Valid {
-		c.JSON(404, gin.H{
+		c.JSON(401, gin.H{
 			"message": "Unauthorized",
 		})
 		return false

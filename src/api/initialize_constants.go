@@ -10,7 +10,6 @@ import (
 // use this hacky solution to confirm bookings - see public for further info
 var Confirmed map[string]db.Booking
 
-// initialize very secret constants from local environment
 func Initialize_constants() {
 	Confirmed = make(map[string]db.Booking)
 
