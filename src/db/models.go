@@ -23,8 +23,25 @@ type Company struct {
 	CFirstName null.String `db:"contact_firstname" json:"contact_firstname"`
 	CLastName  null.String `db:"contact_lastname" json:"contact_lastname"`
 	CNumber    null.String `db:"contact_number" json:"contact_number"`
-	Verified   null.Bool   `db:"verified" json:"-"`
+	Verified   null.Bool   `db:"verified" json:"verified"`
 	Email      null.String `db:"email" json:"email"`
+	Password   null.String `db:"password" json:"password"`
+}
+
+type CompanyPublic struct {
+	ID         null.Int    `db:"id" json:"id"`
+	Name       null.String `db:"name" json:"name"`
+	Adress     null.String `db:"adress" json:"adress"`
+	City       null.String `db:"city" json:"city"`
+	Country    null.String `db:"country" json:"country"`
+	PostCode   null.String `db:"post_code" json:"post_code"`
+	Longitude  null.Float  `db:"lon" json:"longitude"`
+	Latitude   null.Float  `db:"lat" json:"latitude"`
+	CFirstName null.String `db:"contact_firstname" json:"-"`
+	CLastName  null.String `db:"contact_lastname" json:"-"`
+	CNumber    null.String `db:"contact_number" json:"-"`
+	Verified   null.Bool   `db:"verified" json:"-"`
+	Email      null.String `db:"email" json:"-"`
 	Password   null.String `db:"password" json:"-"`
 }
 

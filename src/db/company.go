@@ -1,7 +1,5 @@
 package db
 
-import "fmt"
-
 func GetCompanyByID(db *DB, id int) (Company, error) {
 	stmt := db.prepared["company/getByID"]
 	comp := Company{}
@@ -18,9 +16,16 @@ func GetCompanies(db *DB) ([]Company, error) {
 	return comps, err
 }
 
+func GetCompaniesPublic(db *DB) ([]CompanyPublic, error) {
+	stmt := db.prepared["company/get"]
+	comps := []CompanyPublic{}
+	err := stmt.Select(&comps)
+
+	return comps, err
+}
+
 func InsertCompany(db *DB, comp Company) error {
 	stmt := db.prepared["company/insert"]
-	fmt.Printf("%#v", comp.CNumber)
 	_, err := stmt.Exec(comp.Name, comp.Adress, comp.City, comp.Country, comp.PostCode, comp.CFirstName, comp.CNumber, comp.CLastName, comp.Email, comp.Password, comp.Longitude, comp.Latitude)
 	return err
 }
@@ -61,7 +66,6 @@ func GetCompaniesWithinDistance(db *DB, dist Distance) ([]Company, error) {
 	stmt := db.prepared["company/distance"]
 
 	comps := []Company{}
-	fmt.Printf("%#v", dist)
 	err := stmt.Select(&comps, dist.LatMin, dist.LatMax, dist.LonMin, dist.LonMax, dist.Latitude, dist.Longitude, dist.R)
 
 	return comps, err

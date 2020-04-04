@@ -21,6 +21,7 @@ func Add_company(c *gin.Context) {
 	var comp db.Company
 	err := json.NewDecoder(c.Request.Body).Decode(&comp)
 
+	fmt.Printf("%#v", comp)
 	if err != nil {
 		fmt.Printf("hello2 %s", err)
 		return
@@ -52,7 +53,11 @@ func Get_company(c *gin.Context) {
 	}
 	dbbb := dbb.(*db.DB)
 
-	comp, _ := db.GetCompanies(dbbb)
+	comp, err := db.GetCompaniesPublic(dbbb)
+
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	c.JSON(200, comp)
 }
