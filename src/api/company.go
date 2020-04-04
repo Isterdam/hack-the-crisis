@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"net/http"
 
 	"github.com/Isterdam/hack-the-crisis-backend/src/db"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -224,6 +226,51 @@ func GetCompanyDistance(c *gin.Context) {
 	}
 
 	c.JSON(200, comps)
+}
+
+func AuthGetCompany(c *gin.Context) {
+	if !Is_authorized(c) {
+		return
+	}
+	dbb, exist := c.Get("db")
+	if !exist {
+		return
+	}
+	dbbb := dbb.(*db.DB)
+	t, err := c.Request.Cookie("token")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			c.JSON(404, gin.H{
+				"message": "Unauthorized",
+			})
+			return
+		}
+		c.JSON(404, gin.H{
+			"message": "Bad request",
+		})
+		return
+	}
+
+	// jwt string from token
+	tknStr := t.Value
+	claims := &Claims{}
+
+	// parse jwt and store in claims
+	tkn, err := jwt.ParseWithClaims(tknStr, claims,
+		func(token *jwt.Token) (interface{}, error) {
+			return jwtKey, nil
+		})
+
+	ccc := tkn.Claims.(*Claims)
+
+	comp, err := db.GetCompanyByIDNoPass(dbbb, ccc.ID)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	c.JSON(200, comp)
+	return
 }
 
 /*

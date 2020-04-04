@@ -1,10 +1,23 @@
 package db
 
+import (
+	"gopkg.in/guregu/null.v3"
+)
+
 func GetCompanyByID(db *DB, id int) (Company, error) {
 	stmt := db.prepared["company/getByID"]
 	comp := Company{}
 	err := stmt.Get(&comp, id)
 
+	return comp, err
+}
+
+func GetCompanyByIDNoPass(db *DB, id int) (Company, error) {
+	stmt := db.prepared["company/getByID"]
+	comp := Company{}
+	err := stmt.Get(&comp, id)
+
+	comp.Password = null.NewString("", false)
 	return comp, err
 }
 
