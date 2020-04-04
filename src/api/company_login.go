@@ -8,13 +8,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 
+	"os"
 	"encoding/json"
 	"net/http"
 	"time"
 )
 
 // jwt key used to create signature
-var jwtKey = []byte(JWTkey)
+var jwtKey = []byte(os.Getenv("JWTKEY"))
 
 // reads credentials from request body
 type Credentials struct {

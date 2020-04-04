@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
 	"strconv"
 )
 
@@ -23,7 +24,7 @@ func Send_text(c *gin.Context, to_phone string, confirmation string) {
 	c.Request, _ = http.NewRequest("POST", "https://api.46elks.com/a1/SMS", bytes.NewBufferString(data.Encode()))
 	c.Request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	c.Request.Header.Add("Content-Length", strconv.Itoa(len(data.Encode())))
-	c.Request.SetBasicAuth(PhoneUser, PhonePass)
+	c.Request.SetBasicAuth(os.Getenv("PHONEUSER"), os.Getenv("PHONEPASS"))
 
 	client := &http.Client{}
 	resp, err := client.Do(c.Request)
