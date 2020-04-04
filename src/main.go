@@ -21,8 +21,14 @@ func main() {
 		fmt.Printf("%s", err)
 		log.Fatal(err)
 	}
-
-	r.Use(cors.Default())
+	config := cors.DefaultConfig()
+	config.AllowOriginFunc = func(origin string) bool {
+		return true
+	}
+	config.AllowCredentials = true
+	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
+	r.Use(cors.New(config))
+	//r.Use(cors.Default())
 
 	r.Use(func(c *gin.Context) {
 		c.Set("db", sql)
