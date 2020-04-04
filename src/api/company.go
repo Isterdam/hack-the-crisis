@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"math"
-	"net/http"
 
 	"github.com/Isterdam/hack-the-crisis-backend/src/db"
 	"github.com/dgrijalva/jwt-go"
@@ -237,26 +236,13 @@ func AuthGetCompany(c *gin.Context) {
 		return
 	}
 	dbbb := dbb.(*db.DB)
-	t, err := c.Request.Cookie("token")
-	if err != nil {
-		if err == http.ErrNoCookie {
-			c.JSON(404, gin.H{
-				"message": "Unauthorized",
-			})
-			return
-		}
-		c.JSON(404, gin.H{
-			"message": "Bad request",
-		})
-		return
-	}
+	token := c.Request.Header.Get("Authorization")
 
 	// jwt string from token
-	tknStr := t.Value
 	claims := &Claims{}
 
 	// parse jwt and store in claims
-	tkn, err := jwt.ParseWithClaims(tknStr, claims,
+	tkn, err := jwt.ParseWithClaims(token, claims,
 		func(token *jwt.Token) (interface{}, error) {
 			return jwtKey, nil
 		})
