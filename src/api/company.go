@@ -65,7 +65,7 @@ func Get_company(c *gin.Context) {
 }
 
 func Update_company(c *gin.Context) {
-	if !Is_authorized(c) {
+	if !IsAuthorized(c) {
 		return
 	}
 	dbb, exist := c.Get("db")
@@ -94,7 +94,7 @@ func Update_company(c *gin.Context) {
 }
 
 func Add_slots(c *gin.Context) {
-	if !Is_authorized(c) {
+	if !IsAuthorized(c) {
 		return
 	}
 	dbb, exist := c.Get("db")
@@ -116,7 +116,7 @@ func Add_slots(c *gin.Context) {
 }
 
 func Get_slots(c *gin.Context) {
-	if !Is_authorized(c) {
+	if !IsAuthorized(c) {
 		return
 	}
 	dbb, exist := c.Get("db")
@@ -141,7 +141,7 @@ func Get_slots(c *gin.Context) {
 }
 
 func Update_slot(c *gin.Context) {
-	if !Is_authorized(c) {
+	if !IsAuthorized(c) {
 		return
 	}
 	dbb, exist := c.Get("db")
@@ -229,7 +229,7 @@ func GetCompanyDistance(c *gin.Context) {
 }
 
 func AuthGetCompany(c *gin.Context) {
-	if !Is_authorized(c) {
+	if !IsAuthorized(c) {
 		return
 	}
 	dbb, exist := c.Get("db")

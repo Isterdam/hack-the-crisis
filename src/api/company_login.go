@@ -29,7 +29,7 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-func Company_login(c *gin.Context) {
+func CompanyLogin(c *gin.Context) {
 	var comp db.Company
 	// decode HTTP Request Body JSON
 	err := json.NewDecoder(c.Request.Body).Decode(&comp)
@@ -103,40 +103,27 @@ func Company_login(c *gin.Context) {
 	})
 }
 
-func Is_authorized(c *gin.Context) bool {
+func IsAuthorized(c *gin.Context) bool {
 	// obtain token from session cookies
-	t, err := c.Request.Cookie("token")
-	if err != nil {
-		if err == http.ErrNoCookie {
-			c.JSON(401, gin.H{
-				"message": "Unauthorized",
-			})
-			return false
-		}
-		c.JSON(400, gin.H{
-			"message": "Bad request",
+	token := c.Request.Header.Get("Authorization")
+	if token == "" {
+		c.JSON(401, gin.H{
+			"message": "Unauthorized",
 		})
 		return false
 	}
 
 	// jwt string from token
-	tknStr := t.Value
 	claims := &Claims{}
 
 	// parse jwt and store in claims
-	tkn, err := jwt.ParseWithClaims(tknStr, claims,
+	tkn, err := jwt.ParseWithClaims(token, claims,
 		func(token *jwt.Token) (interface{}, error) {
 			return jwtKey, nil
 		})
 	if err != nil {
-		if err == jwt.ErrSignatureInvalid {
-			c.JSON(401, gin.H{
-				"message": "Unauthorized",
-			})
-			return false
-		}
-		c.JSON(400, gin.H{
-			"message": "Bad request",
+		c.JSON(401, gin.H{
+			"message": "Unauthorized",
 		})
 		return false
 	}

@@ -16,7 +16,7 @@ func Init_company_routes(r *gin.Engine) {
 	r.GET("/company/info", api.AuthGetCompany)
 
 	// to log in
-	r.POST("/company/login", api.Company_login)
+	r.POST("/company/login", api.CompanyLogin)
 
 	// with company token
 	r.POST("/company/slots", api.Add_slots)
