@@ -18,4 +18,7 @@ var queries = []KVP{
 	KVP{K: "company/update/password", V: "UPDATE company SET password=$2 WHERE id=$1 RETURNING *"},
 	KVP{K: "company/login", V: "SELECT * FROM company WHERE email=$1"},
 	KVP{K: "company/slot/get", V: "SELECT * FROM slots WHERE id=$1"},
+	KVP{K: "company/slot/getAll", V: "SELECT * FROM slots WHERE company_id=$1"},
+	KVP{K: "company/slot/update", V: "UPDATE slots SET start_time=$2, end_time=$3, max=$4, day=$5 WHERE id=$1 RETURNING *"},
+	KVP{K: "company/slot/add", V: "INSERT INTO slots (id, company_id, start_time, end_time, max, day) VALUES (DEFAULT, $1, $2, $3, $4, $5)"},
 }
