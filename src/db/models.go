@@ -23,9 +23,9 @@ type Company struct {
 	CFirstName null.String `db:"contact_firstname" json:"contact_firstname"`
 	CLastName  null.String `db:"contact_lastname" json:"contact_lastname"`
 	CNumber    null.String `db:"contact_number" json:"contact_number"`
-	Verified   null.Bool   `db:"verified" json:"verified"`
+	Verified   null.Bool   `db:"verified" json:"-"`
 	Email      null.String `db:"email" json:"email"`
-	Password   null.String `db:"password" json:"password"`
+	Password   null.String `db:"password" json:"-"`
 }
 
 type Booking struct {
