@@ -1,5 +1,7 @@
 package db
 
+import "fmt"
+
 func GetCompanyByID(db *DB, id int) (Company, error) {
 	stmt := db.prepared["company/getByID"]
 	comp := Company{}
@@ -14,4 +16,11 @@ func GetCompanies(db *DB) ([]Company, error) {
 	err := stmt.Select(&comps)
 
 	return comps, err
+}
+
+func InsertCompany(db *DB, comp Company) error {
+	stmt := db.prepared["company/insert"]
+	fmt.Printf("%#v", comp.CNumber)
+	_, err := stmt.Exec(comp.Name, comp.Adress, comp.City, comp.Country, comp.PostCode, comp.CFirstName, comp.CNumber, comp.CLastName, comp.Email, comp.Password)
+	return err
 }

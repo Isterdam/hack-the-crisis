@@ -42,6 +42,7 @@ func prepareQueries(db *DB) error {
 	for _, query := range queries {
 		err := db.prepare(query.K, query.V)
 		if err != nil {
+			fmt.Printf("%s", err)
 			return err
 		}
 	}
