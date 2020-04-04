@@ -17,5 +17,5 @@ A booking system for entry to a store will provide three important things:
 * A simple way for stores to follow existing as well as possible future guidelines and regulations from the government
 
 ### How?
-Companies can register their stores at the website by providing time slots with a maximum allowed number of customers. Customers can then book a certain time slot with their phone number, whereupon they are sent a QR code which grants them access to the store
+Companies can register their stores at the website by providing time slots with a maximum allowed number of customers. Customers can then book a certain time slot with their phone number, whereupon they are sent a QR code which grants them access to the store at a certain time
 
