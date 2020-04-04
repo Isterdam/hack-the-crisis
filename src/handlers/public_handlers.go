@@ -20,7 +20,6 @@ func Init_public_routes(r *gin.Engine) {
 	r.POST("/book/confirm", api.Book_confirm) // by code
 	/*
 		r.POST("/unbook", api.Unbook)
-
-		r.GET("/book", api.Get_ticket) // /book?code={code} -> c.Query("code")
 	*/
+	r.GET("/book/confirm/get", api.Get_ticket) // /book?code={code} -> c.Query("code")
 }
