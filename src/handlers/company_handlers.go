@@ -11,6 +11,7 @@ func Init_company_routes(r *gin.Engine) {
 
 	r.POST("/company", api.Add_company)
 	r.GET("/company", api.Get_company)
+	r.POST("/company/distance", api.GetCompanyDistance)
 
 	// to log in
 	r.POST("/company/login", api.Company_login)

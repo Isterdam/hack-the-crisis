@@ -18,12 +18,14 @@ type Company struct {
 	City       null.String `db:"city" json:"city"`
 	Country    null.String `db:"country" json:"country"`
 	PostCode   null.String `db:"post_code" json:"post_code"`
+	Longitude  null.Float  `db:"lon" json:"longitude"`
+	Latitude   null.Float  `db:"lat" json:"latitude"`
 	CFirstName null.String `db:"contact_firstname" json:"contact_firstname"`
 	CLastName  null.String `db:"contact_lastname" json:"contact_lastname"`
 	CNumber    null.String `db:"contact_number" json:"contact_number"`
-	Verified   null.Bool   `db:"verified" json:"verified"`
+	Verified   null.Bool   `db:"verified" json:"-"`
 	Email      null.String `db:"email" json:"email"`
-	Password   null.String `db:"password" json:"password"`
+	Password   null.String `db:"password" json:"-"`
 }
 
 type Booking struct {
@@ -33,4 +35,15 @@ type Booking struct {
 	Code        null.String `db:"code" json:"code"`
 	FirstName   null.String `db:"first_name" json:"first_name"`
 	LastName    null.String `db:"last_name" json:"last_name"`
+}
+
+type Distance struct {
+	Longitude float64 `json:"longitude"`
+	Latitude  float64 `json:"latitude"`
+	Distance  int     `json:"distance"`
+	LonMax    float64
+	LonMin    float64
+	LatMax    float64
+	LatMin    float64
+	R         float64
 }
