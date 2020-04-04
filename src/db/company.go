@@ -21,7 +21,7 @@ func GetCompanies(db *DB) ([]Company, error) {
 func InsertCompany(db *DB, comp Company) error {
 	stmt := db.prepared["company/insert"]
 	fmt.Printf("%#v", comp.CNumber)
-	_, err := stmt.Exec(comp.Name, comp.Adress, comp.City, comp.Country, comp.PostCode, comp.CFirstName, comp.CNumber, comp.CLastName, comp.Email, comp.Password)
+	_, err := stmt.Exec(comp.Name, comp.Adress, comp.City, comp.Country, comp.PostCode, comp.CFirstName, comp.CNumber, comp.CLastName, comp.Email, comp.Password, comp.Longitude, comp.Latitude)
 	return err
 }
 
@@ -29,7 +29,7 @@ func UpdateCompany(db *DB, comp Company) (Company, error) {
 	var newComp Company
 
 	stmt := db.prepared["company/update/location"]
-	err := stmt.QueryRowx(comp.ID, comp.Name, comp.Adress, comp.City, comp.Country, comp.PostCode).StructScan(&newComp)
+	err := stmt.QueryRowx(comp.ID, comp.Name, comp.Adress, comp.City, comp.Country, comp.PostCode, comp.Longitude, comp.Latitude).StructScan(&newComp)
 
 	if comp.CFirstName.String == "" {
 		return newComp, err
@@ -55,4 +55,14 @@ func GetCompanyByEmail(db *DB, email string) (Company, error) {
 	err := stmt.Get(&retComp, email)
 
 	return retComp, err
+}
+
+func GetCompaniesWithinDistance(db *DB, dist Distance) ([]Company, error) {
+	stmt := db.prepared["company/distance"]
+
+	comps := []Company{}
+	fmt.Printf("%#v", dist)
+	err := stmt.Select(&comps, dist.LatMin, dist.LatMax, dist.LonMin, dist.LonMax, dist.Latitude, dist.Longitude, dist.R)
+
+	return comps, err
 }
