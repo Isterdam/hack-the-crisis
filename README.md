@@ -1,3 +1,5 @@
+![ShopAlone](https://github.com/Isterdam/hack-the-crisis-backend/blob/master/logo.JPG "ShopeAlone")
+
 # Hack the Crisis 2020
 ## Klundliga tekniska högskolan - ShopAlone
 
