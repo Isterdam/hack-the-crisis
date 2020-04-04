@@ -6,9 +6,9 @@ import (
 )
 
 func Init_company_routes(r *gin.Engine) {
-	/*
-		r.PATCH("/company", api.Update_company)
-	*/
+
+	r.PATCH("/company", api.Update_company)
+
 	r.POST("/company", api.Add_company)
 	r.GET("/company", api.Get_company)
 

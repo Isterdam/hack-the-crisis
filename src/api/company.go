@@ -27,7 +27,7 @@ func Add_company(c *gin.Context) {
 	err = db.InsertCompany(dbbb, comp)
 
 	if err != nil {
-		fmt.Printf("hello %s", err)
+		fmt.Printf("%s", err)
 		return
 	}
 
@@ -48,11 +48,34 @@ func Get_company(c *gin.Context) {
 	c.JSON(200, comp)
 }
 
-/*
 func Update_company(c *gin.Context) {
+	if !Is_authorized(c) {
+		return
+	}
+	dbb, exist := c.Get("db")
+	if !exist {
+		return
+	}
+	dbbb := dbb.(*db.DB)
 
+	var comp db.Company
+	err := json.NewDecoder(c.Request.Body).Decode(&comp)
+
+	if err != nil {
+		fmt.Printf("%s\n", err)
+		return
+	}
+
+	var newComp db.Company
+	newComp, err = db.UpdateCompany(dbbb, comp)
+
+	if err != nil {
+		fmt.Printf("%s\n", err)
+		return
+	}
+
+	c.JSON(200, newComp)
 }
-*/
 
 func Add_slots(c *gin.Context) {
 	if Is_authorized(c) {
