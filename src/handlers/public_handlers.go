@@ -12,7 +12,7 @@ func Init_public_routes(r *gin.Engine) {
 		r.GET("/stores", api.Get_stores) // by location and radius
 	*/
 
-	r.GET("/stores/:store/day/:day/slots", api.Get_store_slots) // slots?day={1/2...}
+	r.GET("/stores/:store/day/:day/slots", api.Get_store_slots)
 
 	/*
 		r.GET("/search", api.Search_stores) // /search?word1={word1}&... -> c.Query("word1")

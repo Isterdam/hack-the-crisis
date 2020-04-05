@@ -93,8 +93,7 @@ func Book_time(c *gin.Context) {
 
 	fmt.Println(confirmation)
 
-	// UNCOMMENT THIS TO SEND TEXT
-	// Send_text(c, booking.PhoneNum, confirmation)
+	Send_text(c, booking.PhoneNumber.String, confirmation)
 }
 
 func generateTicketCode(booking db.Booking) string {
@@ -117,7 +116,7 @@ func Book_confirm(c *gin.Context) {
 		confirmation := "Du har nu bekräftat din bokning!\n\nBiljetten hittar du i länken nedan:\n" + url
 
 		fmt.Println(confirmation)
-		// Send_text(c, Confirmed[ticketCode].PhoneNumber.String, confirmation)
+		Send_text(c, Confirmed[ticketCode].PhoneNumber.String, confirmation)
 
 		// qrPng, _ := qrcode.Encode(url, qrcode.Medium, 256)
 		// save qr code somewhere
