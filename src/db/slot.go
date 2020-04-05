@@ -4,7 +4,7 @@ func GetSlot(db *DB, slotID int) (Slot, error) {
 	stmt := db.prepared["company/slot/get"]
 	slot := Slot{}
 	err := stmt.Get(&slot, slotID)
-	
+
 	return slot, err
 }
 
@@ -12,7 +12,7 @@ func GetSlotsByCompany(db *DB, companyID int) ([]Slot, error) {
 	stmt := db.prepared["company/slot/getAll"]
 	slots := []Slot{}
 	err := stmt.Select(&slots, companyID)
-	
+
 	return slots, err
 }
 

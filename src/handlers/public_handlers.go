@@ -13,6 +13,7 @@ func Init_public_routes(r *gin.Engine) {
 	*/
 
 	r.GET("/stores/:store/day/:day/slots", api.Get_store_slots)
+	r.GET("/slot/:slotID/load", api.GetSlotLoad) // amount booked and max number
 
 	/*
 		r.GET("/search", api.Search_stores) // /search?word1={word1}&... -> c.Query("word1")

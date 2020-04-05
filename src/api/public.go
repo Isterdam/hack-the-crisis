@@ -160,3 +160,35 @@ func Get_ticket(c *gin.Context) {
 
 	c.JSON(200, book)
 }
+
+func GetSlotLoad(c *gin.Context) {
+	slotIDStr := c.Param("slotID")
+	slotID, _ := strconv.Atoi(slotIDStr)
+
+	dbb, exist := c.Get("db")
+	if !exist {
+		return
+	}
+	dbbb := dbb.(*db.DB)
+
+	slot, err := db.GetSlot(dbbb, slotID)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	maxAmount := strconv.Itoa(int(slot.MaxAmount.Int64))
+
+	bookings, err := db.GetBookingsBySlotID(dbbb, slotID)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	bookingsAmount := strconv.Itoa(len(bookings))
+
+	c.JSON(200, gin.H{
+		"maxAmount":      maxAmount,
+		"bookingsAmount": bookingsAmount,
+	})
+}
