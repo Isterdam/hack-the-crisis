@@ -259,8 +259,48 @@ func AuthGetCompany(c *gin.Context) {
 	return
 }
 
-/*
-func Get_code(c *gin.Context) {
+func VerifyCode(c *gin.Context) {
+	if !IsAuthorized(c) {
+		return
+	}
+	code := c.Query("code")
 
+	var comp db.Company
+	err := json.NewDecoder(c.Request.Body).Decode(&comp)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	loggedInCompanyID := int(comp.ID.Int64)
+
+	dbb, exist := c.Get("db")
+	if !exist {
+		return
+	}
+	dbbb := dbb.(*db.DB)
+
+	booking, err := db.GetBooking(dbbb, code)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	slot, err := db.GetSlot(dbbb, int(booking.SlotID.Int64))
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	bookingCompanyID := int(slot.CompanyID.Int64)
+
+	if loggedInCompanyID == bookingCompanyID {
+		c.JSON(200, gin.H{
+			"message": "Ticket verified!",
+		})
+	} else {
+		c.JSON(401, gin.H{
+			"message": "Ticket was not verified!",
+		})
+	}
 }
-*/

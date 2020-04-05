@@ -24,9 +24,9 @@ func Init_company_routes(r *gin.Engine) {
 	r.PATCH("/company/slots", api.Update_slot)
 
 	// get specific slot
-	r.GET("/company/slots/id", api.Get_slot) // /company/slots/id?id={id} -> c.Query("id")
-	/*
-		// scan qr code
-		r.GET("/company/code", api.Get_code) // /company/slots/code?code={code} -> c.Query("code")
-	*/
+	r.GET("/company/slots/id", api.Get_slot) 
+
+	// scan qr code
+	r.POST("/company/verify", api.VerifyCode) 
+	// check that booking is at the logged in company
 }
