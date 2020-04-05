@@ -25,8 +25,11 @@ func Get_stores(c *gin.Context) {
 */
 
 func Get_store_slots(c *gin.Context) {
-	dayStr := c.Query("day")
+	dayStr := c.Param("day")
 	day, _ := strconv.Atoi(dayStr)
+
+	storeIDStr := c.Param("store")
+	storeID, _ := strconv.Atoi(storeIDStr)
 
 	dbb, exist := c.Get("db")
 	if !exist {
@@ -34,20 +37,13 @@ func Get_store_slots(c *gin.Context) {
 	}
 	dbbb := dbb.(*db.DB)
 
-	var comp db.Company
-	err := json.NewDecoder(c.Request.Body).Decode(&comp)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	slots, _ := db.GetSlotsByCompany(dbbb, int(comp.ID.Int64))
+	slots, _ := db.GetSlotsByCompany(dbbb, storeID)
 
 	var slotsByDay []db.Slot
 	for _, slot := range slots {
 		if int(slot.Day.Int64) == day {
 			slotsByDay = append(slotsByDay, slot)
-		} 
+		}
 	}
 
 	c.JSON(200, slotsByDay)
