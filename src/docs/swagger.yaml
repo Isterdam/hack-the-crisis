@@ -1,5 +1,20 @@
 basePath: /
 definitions:
+  db.Booking:
+    properties:
+      code:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+      phone_number:
+        type: string
+      slot_id:
+        type: integer
+    type: object
   db.Company:
     properties:
       adress:
@@ -17,11 +32,11 @@ definitions:
       email:
         type: string
       id:
-        type: string
+        type: integer
       latitude:
-        type: string
+        type: number
       longitude:
-        type: string
+        type: number
       name:
         type: string
       password:
@@ -29,7 +44,7 @@ definitions:
       post_code:
         type: string
       verified:
-        type: string
+        type: boolean
     type: object
   db.CompanyPublic:
     properties:
@@ -40,11 +55,11 @@ definitions:
       country:
         type: string
       id:
-        type: string
+        type: integer
       latitude:
-        type: string
+        type: number
       longitude:
-        type: string
+        type: number
       name:
         type: string
       post_code:
@@ -72,15 +87,15 @@ definitions:
   db.Slot:
     properties:
       company_id:
-        type: string
+        type: integer
       day:
-        type: string
+        type: integer
       end_time:
         type: string
       id:
-        type: string
+        type: integer
       max:
-        type: string
+        type: integer
       start_time:
         type: string
     type: object
@@ -94,6 +109,43 @@ info:
   title: ShopAlone API
   version: "1.0"
 paths:
+  /book:
+    post:
+      parameters:
+      - description: Booking
+        in: body
+        name: booking
+        required: true
+        schema:
+          $ref: '#/definitions/db.Booking'
+      summary: '"Books" a certain time by creating a confirmation link that is sent
+        to the user by text. Does NOT add booking to database.'
+  /book/confirm/{code}:
+    post:
+      parameters:
+      - description: Code
+        in: path
+        name: code
+        required: true
+        type: string
+      summary: Confirms a booking and adds it to the database. Sends a link to the
+        ticket to the user.
+  /book/confirm/get/{code}:
+    get:
+      parameters:
+      - description: Code
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.Booking'
+      summary: Gets a ticket by code.
   /company:
     get:
       produces:
@@ -136,7 +188,7 @@ paths:
       responses:
         "200": {}
       summary: Adds a company to the database
-  /company/code/{ticketCode}/verify:
+  /company/code/{code}/verify:
     post:
       parameters:
       - description: Company
@@ -147,7 +199,7 @@ paths:
           $ref: '#/definitions/db.Company'
       - description: Code
         in: path
-        name: ticketCode
+        name: code
         required: true
         type: string
       produces:
@@ -279,4 +331,51 @@ paths:
             $ref: '#/definitions/db.Slot'
       summary: Gets a full slot. Requires a slot as parameter, but an id in body will
         suffice.
+  /slot/{slotID}/load:
+    get:
+      parameters:
+      - description: slotID
+        in: path
+        name: slotID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: JSON with "maxAmount", "bookingsAmount"
+      summary: Gets the load of a slot by returning maxAmount of customers and amount
+        of booked customers as JSON.
+  /stores/{store}/day/{day}/slots:
+    get:
+      parameters:
+      - description: Day
+        in: path
+        name: day
+        required: true
+        type: string
+      - description: Store
+        in: path
+        name: store
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/db.Slot'
+            type: array
+      summary: Gets all slots for a certain company on a certain day.
+  /unbook:
+    post:
+      parameters:
+      - description: Code
+        in: path
+        name: code
+        required: true
+        type: string
+      summary: Unbooks a ticket by removing it from the database by code.
 swagger: "2.0"

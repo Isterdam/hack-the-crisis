@@ -13,7 +13,14 @@ import (
 	"time"
 )
 
-func Get_store_slots(c *gin.Context) {
+// GetStoreSlots godoc
+// @Summary Gets all slots for a certain company on a certain day.
+// @Produce json
+// @Param day path string true "Day"
+// @Param store path string true "Store"
+// @Success 200 {array} db.Slot
+// @Router /stores/{store}/day/{day}/slots [get]
+func GetStoreSlots(c *gin.Context) {
 	dayStr := c.Param("day")
 	day, _ := strconv.Atoi(dayStr)
 
@@ -38,7 +45,12 @@ func Get_store_slots(c *gin.Context) {
 	c.JSON(200, slotsByDay)
 }
 
-func Book_time(c *gin.Context) {
+// BookTime godoc
+// @Summary "Books" a certain time by creating a confirmation link that is sent to the user by text. Does NOT add booking to database.
+// @Consume json
+// @Param booking body db.Booking true "Booking"
+// @Router /book [post]
+func BookTime(c *gin.Context) {
 	var booking db.Booking
 	err := json.NewDecoder(c.Request.Body).Decode(&booking)
 	// could not parse enough arguments
@@ -55,7 +67,7 @@ func Book_time(c *gin.Context) {
 	Confirmed[ticketCode] = booking
 
 	// DOES THIS ACTUALLY GIVE CURRENT URL?
-	url := c.Request.URL.Hostname() + c.Request.URL.Path + "/confirm/?code=" + ticketCode
+	url := c.Request.URL.Hostname() + c.Request.URL.Path + "/confirm/" + ticketCode
 
 	dbb, exist := c.Get("db")
 	if !exist {
@@ -72,43 +84,53 @@ func Book_time(c *gin.Context) {
 	var timeStr string
 	timeStr = strconv.Itoa(timeStart.Hour()) + ":" + strconv.Itoa(timeStart.Minute()) + "-" + strconv.Itoa(timeStop.Hour()) + ":" + strconv.Itoa(timeStop.Minute())
 
-	confirmation := "Hej " + booking.FirstName.String + "!\n\n" + "Vänligen bekräfta din bokning på " + store.Name.String + " klockan " + timeStr + "\n\n" + url
+	confirmation := "Hej " + booking.FirstName.String + "!\n\n" + "Vänligen bekräfta din bokning på " + store.Name.String + " klockan " + timeStr + " genom länken nedan:\n\n" + url
 
 	fmt.Println(confirmation)
 
-	Send_text(c, booking.PhoneNumber.String, confirmation)
+	// Send_text(c, booking.PhoneNumber.String, confirmation)
 }
 
 func generateTicketCode(booking db.Booking) string {
-	// current time + random num [0, 100) + booking name (where space is replaced by underscore)
-	return strconv.FormatInt(time.Now().Unix(), 10) + strconv.Itoa(rand.Intn(100)) + strings.ReplaceAll(booking.FirstName.String, " ", "_")
+	// last 2 digits of current time + random num [10, 100) + booking name (where space is replaced by underscore)
+	return strconv.FormatInt(time.Now().Unix(), 10)[8:] + strconv.Itoa(10+rand.Intn(90)) + strings.ReplaceAll(booking.FirstName.String, " ", "_")
 }
 
-func Book_confirm(c *gin.Context) {
-	ticketCode := c.Query("code")
-	if Confirmed[ticketCode].PhoneNumber.String != "" {
-		dbb, exist := c.Get("db")
-		if !exist {
-			return
-		}
-		dbbb := dbb.(*db.DB)
+// BookConfirm godoc
+// @Summary Confirms a booking and adds it to the database. Sends a link to the ticket to the user.
+// @Param code path string true "Code"
+// @Router /book/confirm/{code} [post]
+func BookConfirm(c *gin.Context) {
+	ticketCode := c.Param("code")
 
-		db.InsertBooking(dbbb, Confirmed[ticketCode])
-
-		url := strings.Split(c.Request.URL.Hostname()+c.Request.URL.Path, "?")[0] + "/get?code=" + ticketCode
-		confirmation := "Du har nu bekräftat din bokning!\n\nBiljetten hittar du i länken nedan:\n" + url
-
-		fmt.Println(confirmation)
-		Send_text(c, Confirmed[ticketCode].PhoneNumber.String, confirmation)
-
-		delete(Confirmed, ticketCode) // delete entry from map
-	} else {
-		fmt.Println("Failed to verify ticket code")
+	if Confirmed[ticketCode].PhoneNumber.String == "" {
+		fmt.Println("Failed to verify ticket code!")
+		return
 	}
+
+	dbb, exist := c.Get("db")
+	if !exist {
+		return
+	}
+	dbbb := dbb.(*db.DB)
+
+	db.InsertBooking(dbbb, Confirmed[ticketCode])
+
+	url := c.Request.URL.Hostname() + c.Request.URL.Path + "/get"
+	confirmation := "Du har nu bekräftat din bokning!\n\nBiljetten hittar du i länken nedan:\n\n" + url
+
+	fmt.Println(confirmation)
+	// Send_text(c, Confirmed[ticketCode].PhoneNumber.String, confirmation)
+
+	delete(Confirmed, ticketCode) // delete entry from map
 }
 
+// Unbook godoc
+// @Summary Unbooks a ticket by removing it from the database by code.
+// @Param code path string true "Code"
+// @Router /unbook [post]
 func Unbook(c *gin.Context) {
-	code := c.Query("code")
+	code := c.Param("code")
 
 	dbb, exist := c.Get("db")
 	if !exist {
@@ -123,8 +145,14 @@ func Unbook(c *gin.Context) {
 	}
 }
 
-func Get_ticket(c *gin.Context) {
-	code := c.Query("code")
+// GetTicket godoc
+// @Summary Gets a ticket by code.
+// @Produce json
+// @Param code path string true "Code"
+// @Success 200 {object} db.Booking
+// @Router /book/confirm/get/{code} [get]
+func GetTicket(c *gin.Context) {
+	code := c.Param("code")
 
 	dbb, exist := c.Get("db")
 	if !exist {
@@ -141,6 +169,12 @@ func Get_ticket(c *gin.Context) {
 	c.JSON(200, book)
 }
 
+// GetSlotLoad godoc
+// @Summary Gets the load of a slot by returning maxAmount of customers and amount of booked customers as JSON.
+// @Produce json
+// @Param slotID path string true "slotID"
+// @Success 200 "JSON with "maxAmount", "bookingsAmount""
+// @Router /slot/{slotID}/load [get]
 func GetSlotLoad(c *gin.Context) {
 	slotIDStr := c.Param("slotID")
 	slotID, _ := strconv.Atoi(slotIDStr)

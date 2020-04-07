@@ -12,14 +12,14 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// Add_company godoc
+// AddCompany godoc
 // @Summary Adds a company to the database
 // @Consume json
 // @Produce json
 // @Param company body db.Company true "Company"
 // @Success 200
 // @Router /company [post]
-func Add_company(c *gin.Context) {
+func AddCompany(c *gin.Context) {
 	dbb, exist := c.Get("db")
 	if !exist {
 		return
@@ -54,12 +54,12 @@ func Add_company(c *gin.Context) {
 	})
 }
 
-// Get_company godoc
+// GetCompany godoc
 // @Summary Gets all CompanyPublic from database
 // @Produce json
 // @Success 200 {array} db.CompanyPublic
 // @Router /company [get]
-func Get_company(c *gin.Context) {
+func GetCompany(c *gin.Context) {
 	dbb, exist := c.Get("db")
 	if !exist {
 		return
@@ -75,14 +75,14 @@ func Get_company(c *gin.Context) {
 	c.JSON(200, comp)
 }
 
-// Update_company godoc
+// UpdateCompany godoc
 // @Summary Updates a company in the database, then returns the updated company. Requires authorization.
 // @Consume json
 // @Produce json
 // @Param company body db.Company true "Company"
 // @Success 200 {object} db.Company
 // @Router /company [patch]
-func Update_company(c *gin.Context) {
+func UpdateCompany(c *gin.Context) {
 	if !IsAuthorized(c) {
 		return
 	}
@@ -111,14 +111,14 @@ func Update_company(c *gin.Context) {
 	c.JSON(200, newComp)
 }
 
-// Add_slots godoc
+// AddSlots godoc
 // @Summary Adds slots to database. Requires authorization.
 // @Consume json
 // @Produce json
 // @Param slots body []db.Slot true "Slots"
 // @Success 200
 // @Router /company/slots [post]
-func Add_slots(c *gin.Context) {
+func AddSlots(c *gin.Context) {
 	if !IsAuthorized(c) {
 		return
 	}
@@ -140,14 +140,14 @@ func Add_slots(c *gin.Context) {
 	}
 }
 
-// Get_slots godoc
+// GetSlots godoc
 // @Summary Gets all slots for a certain company. Requires authorization.
 // @Consume json
 // @Produce json
 // @Param company body db.Company true "Company"
 // @Success 200 {array} db.Slot
 // @Router /company/slots [get]
-func Get_slots(c *gin.Context) {
+func GetSlots(c *gin.Context) {
 	if !IsAuthorized(c) {
 		return
 	}
@@ -172,14 +172,14 @@ func Get_slots(c *gin.Context) {
 	c.JSON(200, slots)
 }
 
-// Update_slot godoc
+// UpdateSlot godoc
 // @Summary Updates a certain slot, then returns updated slot. Requires authorization.
 // @Consume json
 // @Produce json
 // @Param slot body db.Slot true "Slot"
 // @Success 200 {object} db.Slot
 // @Router /company/slots [patch]
-func Update_slot(c *gin.Context) {
+func UpdateSlot(c *gin.Context) {
 	if !IsAuthorized(c) {
 		return
 	}
@@ -206,14 +206,14 @@ func Update_slot(c *gin.Context) {
 	c.JSON(200, newSlot)
 }
 
-// Get_slot godoc
+// GetSlot godoc
 // @Summary Gets a full slot. Requires a slot as parameter, but an id in body will suffice.
 // @Consume json
 // @Produce json
 // @Param slot body db.Slot true "Slot"
 // @Success 200 {object} db.Slot
 // @Router /company/slots/id [get]
-func Get_slot(c *gin.Context) {
+func GetSlot(c *gin.Context) {
 	dbb, exist := c.Get("db")
 	if !exist {
 		return
@@ -325,10 +325,10 @@ func AuthGetCompany(c *gin.Context) {
 // @Consume json
 // @Produce json
 // @Param company body db.Company true "Company"
-// @Param ticketCode path string true "Code"
+// @Param code path string true "Code"
 // @Success 200 "Ticket was verified."
 // @Failure 401 "Ticket could not be verified."
-// @Router /company/code/{ticketCode}/verify [post]
+// @Router /company/code/{code}/verify [post]
 func VerifyCode(c *gin.Context) {
 	code := c.Param("code")
 	fmt.Println(code)

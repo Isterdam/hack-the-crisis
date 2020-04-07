@@ -46,6 +46,7 @@ func main() {
 		c.Set("db", sql)
 	})
 
+	// localhost:8080/swagger/index.html to access documentation
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	api.Initialize_constants()
