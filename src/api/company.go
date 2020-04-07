@@ -16,7 +16,7 @@ import (
 // @Summary Adds a company to the database
 // @Consume json
 // @Produce json
-// @Param id path integer true "User ID"
+// @Param company body db.Company true "Company"
 // @Success 200
 // @Router /company [post]
 func Add_company(c *gin.Context) {
@@ -54,6 +54,11 @@ func Add_company(c *gin.Context) {
 	})
 }
 
+// Get_company godoc
+// @Summary Gets all CompanyPublic from database
+// @Produce json
+// @Success 200 {array} db.CompanyPublic
+// @Router /company [get]
 func Get_company(c *gin.Context) {
 	dbb, exist := c.Get("db")
 	if !exist {
@@ -70,6 +75,13 @@ func Get_company(c *gin.Context) {
 	c.JSON(200, comp)
 }
 
+// Update_company godoc
+// @Summary Updates a company in the database, then returns the updated company. Requires authorization.
+// @Consume json
+// @Produce json
+// @Param company body db.Company true "Company"
+// @Success 200 {object} db.Company
+// @Router /company [patch]
 func Update_company(c *gin.Context) {
 	if !IsAuthorized(c) {
 		return
@@ -99,6 +111,13 @@ func Update_company(c *gin.Context) {
 	c.JSON(200, newComp)
 }
 
+// Add_slots godoc
+// @Summary Adds slots to database. Requires authorization.
+// @Consume json
+// @Produce json
+// @Param slots body []db.Slot true "Slots"
+// @Success 200
+// @Router /company/slots [post]
 func Add_slots(c *gin.Context) {
 	if !IsAuthorized(c) {
 		return
@@ -121,6 +140,13 @@ func Add_slots(c *gin.Context) {
 	}
 }
 
+// Get_slots godoc
+// @Summary Gets all slots for a certain company. Requires authorization.
+// @Consume json
+// @Produce json
+// @Param company body db.Company true "Company"
+// @Success 200 {array} db.Slot
+// @Router /company/slots [get]
 func Get_slots(c *gin.Context) {
 	if !IsAuthorized(c) {
 		return
@@ -146,6 +172,13 @@ func Get_slots(c *gin.Context) {
 	c.JSON(200, slots)
 }
 
+// Update_slot godoc
+// @Summary Updates a certain slot, then returns updated slot. Requires authorization.
+// @Consume json
+// @Produce json
+// @Param slot body db.Slot true "Slot"
+// @Success 200 {object} db.Slot
+// @Router /company/slots [patch]
 func Update_slot(c *gin.Context) {
 	if !IsAuthorized(c) {
 		return
@@ -173,6 +206,13 @@ func Update_slot(c *gin.Context) {
 	c.JSON(200, newSlot)
 }
 
+// Get_slot godoc
+// @Summary Gets a full slot. Requires a slot as parameter, but an id in body will suffice.
+// @Consume json
+// @Produce json
+// @Param slot body db.Slot true "Slot"
+// @Success 200 {object} db.Slot
+// @Router /company/slots/id [get]
 func Get_slot(c *gin.Context) {
 	dbb, exist := c.Get("db")
 	if !exist {
@@ -197,6 +237,13 @@ func Get_slot(c *gin.Context) {
 	c.JSON(200, newSlot)
 }
 
+// GetCompanyDistance godoc
+// @Summary Gets companies within a certain distance.
+// @Consume json
+// @Produce json
+// @Param distance body db.Distance true "Distance"
+// @Success 200 {array} db.Company
+// @Router /company/distance [post]
 func GetCompanyDistance(c *gin.Context) {
 	var dist db.Distance
 	err := json.NewDecoder(c.Request.Body).Decode(&dist)
@@ -234,6 +281,13 @@ func GetCompanyDistance(c *gin.Context) {
 	c.JSON(200, comps)
 }
 
+// AuthGetCompany godoc
+// @Summary Gets a full company by id, no password required. Requires authorization.
+// @Consume json
+// @Produce json
+// @Param authorization header string true "Token"
+// @Success 200 {object} db.Company
+// @Router /company/info [get]
 func AuthGetCompany(c *gin.Context) {
 	if !IsAuthorized(c) {
 		return
@@ -266,6 +320,15 @@ func AuthGetCompany(c *gin.Context) {
 	return
 }
 
+// VerifyCode godoc
+// @Summary Verifies a ticket code for a company. Requires authorization.
+// @Consume json
+// @Produce json
+// @Param company body db.Company true "Company"
+// @Param code query string true "Ticket code"
+// @Success 200 "Ticket was verified."
+// @Failure 401 "Ticket could not be verified."
+// @Router /company/verify [post]
 func VerifyCode(c *gin.Context) {
 	if !IsAuthorized(c) {
 		return
