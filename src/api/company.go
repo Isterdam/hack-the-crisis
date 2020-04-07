@@ -12,6 +12,13 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// Add_company godoc
+// @Summary Adds a company to the database
+// @Consume json
+// @Produce json
+// @Param id path integer true "User ID"
+// @Success 200
+// @Router /company [post]
 func Add_company(c *gin.Context) {
 	dbb, exist := c.Get("db")
 	if !exist {

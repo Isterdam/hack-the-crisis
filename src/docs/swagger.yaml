@@ -1,0 +1,25 @@
+basePath: /
+info:
+  contact:
+    email: ad5880mu-s@student.lu.se
+    name: API Support
+  description: Swagger API for ShopAlone API
+  license: {}
+  termsOfService: http://swagger.io/terms/
+  title: ShopAlone API
+  version: "1.0"
+paths:
+  /company:
+    post:
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200": {}
+      summary: Adds a company to the database
+swagger: "2.0"
