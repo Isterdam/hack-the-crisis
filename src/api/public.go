@@ -2,9 +2,8 @@ package api
 
 import (
 	"github.com/Isterdam/hack-the-crisis-backend/src/db"
-	"gopkg.in/guregu/null.v3"
-	// "github.com/skip2/go-qrcode"
 	"github.com/gin-gonic/gin"
+	"gopkg.in/guregu/null.v3"
 
 	"encoding/json"
 	"fmt"
@@ -13,16 +12,6 @@ import (
 	"strings"
 	"time"
 )
-
-/*
-func Reserve_time(c *gin.Context) {
-
-}
-
-func Get_stores(c *gin.Context) {
-
-}
-*/
 
 func Get_store_slots(c *gin.Context) {
 	dayStr := c.Param("day")
@@ -48,12 +37,6 @@ func Get_store_slots(c *gin.Context) {
 
 	c.JSON(200, slotsByDay)
 }
-
-/*
-func Search_stores(c *gin.Context) {
-
-}
-*/
 
 func Book_time(c *gin.Context) {
 	var booking db.Booking
@@ -117,9 +100,6 @@ func Book_confirm(c *gin.Context) {
 
 		fmt.Println(confirmation)
 		Send_text(c, Confirmed[ticketCode].PhoneNumber.String, confirmation)
-
-		// qrPng, _ := qrcode.Encode(url, qrcode.Medium, 256)
-		// save qr code somewhere
 
 		delete(Confirmed, ticketCode) // delete entry from map
 	} else {

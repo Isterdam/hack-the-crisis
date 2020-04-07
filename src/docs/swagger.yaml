@@ -136,6 +136,28 @@ paths:
       responses:
         "200": {}
       summary: Adds a company to the database
+  /company/code/{ticketCode}/verify:
+    post:
+      parameters:
+      - description: Company
+        in: body
+        name: company
+        required: true
+        schema:
+          $ref: '#/definitions/db.Company'
+      - description: Code
+        in: path
+        name: ticketCode
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Ticket was verified.
+        "401":
+          description: Ticket could not be verified.
+      summary: Verifies a ticket code for a company. Requires authorization.
   /company/distance:
     post:
       parameters:
@@ -257,26 +279,4 @@ paths:
             $ref: '#/definitions/db.Slot'
       summary: Gets a full slot. Requires a slot as parameter, but an id in body will
         suffice.
-  /company/verify:
-    post:
-      parameters:
-      - description: Company
-        in: body
-        name: company
-        required: true
-        schema:
-          $ref: '#/definitions/db.Company'
-      - description: Ticket code
-        in: query
-        name: code
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Ticket was verified.
-        "401":
-          description: Ticket could not be verified.
-      summary: Verifies a ticket code for a company. Requires authorization.
 swagger: "2.0"

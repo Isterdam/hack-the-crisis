@@ -12,7 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	swaggerFiles "github.com/swaggo/files"
-	"github.com/swaggo/gin-swagger"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 // @title ShopAlone API
@@ -49,8 +49,8 @@ func main() {
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	api.Initialize_constants()
-	handlers.Init_public_routes(r)
-	handlers.Init_company_routes(r)
+	handlers.InitPublicRoutes(r)
+	handlers.InitCompanyRoutes(r)
 
 	r.Run(":8080")
 }

@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Init_public_routes(r *gin.Engine) {
+func InitPublicRoutes(r *gin.Engine) {
 	/*
 		r.POST("/reserveBook", api.Reserve_time)
 

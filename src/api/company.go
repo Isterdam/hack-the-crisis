@@ -325,15 +325,17 @@ func AuthGetCompany(c *gin.Context) {
 // @Consume json
 // @Produce json
 // @Param company body db.Company true "Company"
-// @Param code query string true "Ticket code"
+// @Param ticketCode path string true "Code"
 // @Success 200 "Ticket was verified."
 // @Failure 401 "Ticket could not be verified."
-// @Router /company/verify [post]
+// @Router /company/code/{ticketCode}/verify [post]
 func VerifyCode(c *gin.Context) {
+	code := c.Param("code")
+	fmt.Println(code)
+
 	if !IsAuthorized(c) {
 		return
 	}
-	code := c.Query("code")
 
 	var comp db.Company
 	err := json.NewDecoder(c.Request.Body).Decode(&comp)

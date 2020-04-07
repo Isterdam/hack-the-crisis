@@ -77,6 +77,40 @@
                 }
             }
         },
+        "/company/code/{ticketCode}/verify": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Verifies a ticket code for a company. Requires authorization.",
+                "parameters": [
+                    {
+                        "description": "Company",
+                        "name": "company",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/db.Company"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Code",
+                        "name": "ticketCode",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ticket was verified."
+                    },
+                    "401": {
+                        "description": "Ticket could not be verified."
+                    }
+                }
+            }
+        },
         "/company/distance": {
             "post": {
                 "produces": [
@@ -260,40 +294,6 @@
                         "schema": {
                             "$ref": "#/definitions/db.Slot"
                         }
-                    }
-                }
-            }
-        },
-        "/company/verify": {
-            "post": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Verifies a ticket code for a company. Requires authorization.",
-                "parameters": [
-                    {
-                        "description": "Company",
-                        "name": "company",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/db.Company"
-                        }
-                    },
-                    {
-                        "type": "string",
-                        "description": "Ticket code",
-                        "name": "code",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Ticket was verified."
-                    },
-                    "401": {
-                        "description": "Ticket could not be verified."
                     }
                 }
             }
