@@ -29,34 +29,12 @@
                 ]
             }
         },
-        "/book/confirm/get/{code}": {
-            "get": {
+        "/book/confirm/{code}": {
+            "post": {
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Gets a ticket by code.",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Code",
-                        "name": "code",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/db.Booking"
-                        }
-                    }
-                }
-            }
-        },
-        "/book/confirm/{code}": {
-            "post": {
-                "summary": "Confirms a booking and adds it to the database. Sends a link to the ticket to the user.",
+                "summary": "Confirms a booking and adds it to the database if first time. Gets a ticket if it has already been added to database.",
                 "parameters": [
                     {
                         "type": "string",

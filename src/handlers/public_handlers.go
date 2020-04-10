@@ -9,8 +9,7 @@ func InitPublicRoutes(r *gin.Engine) {
 	r.GET("/stores/:store/day/:day/slots", api.GetStoreSlots)
 	r.GET("/slot/:slotID/load", api.GetSlotLoad) // amount booked and max number
 
-	r.POST("/book", api.BookTime)                  // by phone number
-	r.POST("/book/confirm/:code", api.BookConfirm) // by code
+	r.POST("/book", api.BookTime)                              // by phone number
+	r.POST("/book/confirm/:code", api.ConfirmBookAndGetTicket) // by code
 	r.POST("/unbook", api.Unbook)
-	r.GET("/book/confirm/:code/get", api.GetTicket)
 }
