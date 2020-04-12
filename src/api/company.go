@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/Isterdam/hack-the-crisis-backend/src/db"
-	jwt "github.com/dgrijalva/jwt-go"
+
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -87,9 +87,6 @@ func GetCompany(c *gin.Context) {
 // @Success 200 {object} db.Company
 // @Router /company [patch]
 func UpdateCompany(c *gin.Context) {
-	if !IsAuthorized(c) {
-		return
-	}
 	dbb, exist := c.Get("db")
 	if !exist {
 		return
@@ -123,9 +120,7 @@ func UpdateCompany(c *gin.Context) {
 // @Success 200
 // @Router /company/slots [post]
 func AddSlots(c *gin.Context) {
-	if !IsAuthorized(c) {
-		return
-	}
+
 	dbb, exist := c.Get("db")
 	if !exist {
 		return
@@ -152,24 +147,21 @@ func AddSlots(c *gin.Context) {
 // @Success 200 {array} db.Slot
 // @Router /company/slots [get]
 func GetSlots(c *gin.Context) {
-	if !IsAuthorized(c) {
-		return
-	}
+
 	dbb, exist := c.Get("db")
 	if !exist {
 		return
 	}
 	dbbb := dbb.(*db.DB)
 
-	var comp db.Company
-	err := json.NewDecoder(c.Request.Body).Decode(&comp)
-	if err != nil {
-		fmt.Println(err)
+	id, exist := c.Get("id")
+	if !exist {
 		return
 	}
 
 	var slots []db.Slot
-	slots, err = db.GetSlotsByCompany(dbbb, int(comp.ID.Int64))
+	slots, err := db.GetSlotsByCompany(dbbb, id.(int))
+
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -184,9 +176,7 @@ func GetSlots(c *gin.Context) {
 // @Success 200 {object} db.Slot
 // @Router /company/slots [patch]
 func UpdateSlot(c *gin.Context) {
-	if !IsAuthorized(c) {
-		return
-	}
+
 	dbb, exist := c.Get("db")
 	if !exist {
 		return
@@ -294,35 +284,26 @@ func GetCompanyDistance(c *gin.Context) {
 }
 
 // AuthGetCompany godoc
-// @Summary Gets a full company by id, no password required. Requires authorization.
+// @Summary Gets a full company by id, no password required. Requires authorization. Gets company from context.
 // @Consume json
 // @Produce json
-// @Param authorization header string true "Token"
 // @Success 200 {object} db.Company
 // @Router /company/info [get]
 func AuthGetCompany(c *gin.Context) {
-	if !IsAuthorized(c) {
-		return
-	}
+
 	dbb, exist := c.Get("db")
 	if !exist {
 		return
 	}
 	dbbb := dbb.(*db.DB)
-	token := c.Request.Header.Get("Authorization")
 
-	// jwt string from token
-	claims := &Claims{}
+	ID, exist := c.Get("id")
 
-	// parse jwt and store in claims
-	tkn, err := jwt.ParseWithClaims(token, claims,
-		func(token *jwt.Token) (interface{}, error) {
-			return jwtKey, nil
-		})
+	if !exist {
+		return
+	}
 
-	ccc := tkn.Claims.(*Claims)
-
-	comp, err := db.GetCompanyByIDNoPass(dbbb, ccc.ID)
+	comp, err := db.GetCompanyByIDNoPass(dbbb, ID.(int))
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -343,10 +324,6 @@ func AuthGetCompany(c *gin.Context) {
 // @Router /company/code/{code}/verify [post]
 func VerifyCode(c *gin.Context) {
 	code := c.Param("code")
-
-	if !IsAuthorized(c) {
-		return
-	}
 
 	var comp db.Company
 	err := json.NewDecoder(c.Request.Body).Decode(&comp)

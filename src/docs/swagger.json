@@ -179,16 +179,7 @@
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Gets a full company by id, no password required. Requires authorization.",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Token",
-                        "name": "authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
+                "summary": "Gets a full company by id, no password required. Requires authorization. Gets company from context.",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -436,6 +427,9 @@
                 "city": {
                     "type": "string"
                 },
+                "contact_email": {
+                    "type": "string"
+                },
                 "contact_firstname": {
                     "type": "string"
                 },
@@ -535,6 +529,9 @@
         "db.Slot": {
             "type": "object",
             "properties": {
+                "booked": {
+                    "type": "integer"
+                },
                 "company_id": {
                     "type": "integer"
                 },
