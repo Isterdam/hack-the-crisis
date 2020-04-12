@@ -1,7 +1,7 @@
 package db
 
 import (
-	"gopkg.in/guregu/null.v3"
+	null "gopkg.in/guregu/null.v3"
 )
 
 type Slot struct {
@@ -10,7 +10,6 @@ type Slot struct {
 	StartTime null.Time `db:"start_time" json:"start_time"`
 	EndTime   null.Time `db:"end_time" json:"end_time"`
 	MaxAmount null.Int  `db:"max" json:"max"`
-	Day       null.Int  `db:"day" json:"day"`
 	Booked    null.Int  `db:"booked" json:"booked"`
 }
 
