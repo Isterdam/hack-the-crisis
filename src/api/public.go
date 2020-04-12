@@ -1,9 +1,11 @@
 package api
 
 import (
+	"net/http"
+
 	"github.com/Isterdam/hack-the-crisis-backend/src/db"
 	"github.com/gin-gonic/gin"
-	"gopkg.in/guregu/null.v3"
+	null "gopkg.in/guregu/null.v3"
 
 	"encoding/json"
 	"fmt"
@@ -42,7 +44,7 @@ func GetStoreSlots(c *gin.Context) {
 		}
 	}
 
-	c.JSON(200, slotsByDay)
+	c.JSON(http.StatusOK, slotsByDay)
 }
 
 // BookTime godoc
@@ -55,7 +57,7 @@ func BookTime(c *gin.Context) {
 	err := json.NewDecoder(c.Request.Body).Decode(&booking)
 	// could not parse enough arguments
 	if err != nil {
-		c.JSON(404, gin.H{
+		c.JSON(http.StatusNotFound, gin.H{
 			"message": "Page not found",
 		})
 		return

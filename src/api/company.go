@@ -7,7 +7,6 @@ import (
 	"math"
 
 	"github.com/Isterdam/hack-the-crisis-backend/src/db"
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -83,9 +82,6 @@ func GetCompany(c *gin.Context) {
 // @Success 200 {object} db.Company
 // @Router /company [patch]
 func UpdateCompany(c *gin.Context) {
-	if !IsAuthorized(c) {
-		return
-	}
 	dbb, exist := c.Get("db")
 	if !exist {
 		return
@@ -119,9 +115,7 @@ func UpdateCompany(c *gin.Context) {
 // @Success 200
 // @Router /company/slots [post]
 func AddSlots(c *gin.Context) {
-	if !IsAuthorized(c) {
-		return
-	}
+
 	dbb, exist := c.Get("db")
 	if !exist {
 		return
@@ -148,9 +142,7 @@ func AddSlots(c *gin.Context) {
 // @Success 200 {array} db.Slot
 // @Router /company/slots [get]
 func GetSlots(c *gin.Context) {
-	if !IsAuthorized(c) {
-		return
-	}
+
 	dbb, exist := c.Get("db")
 	if !exist {
 		return
@@ -180,9 +172,7 @@ func GetSlots(c *gin.Context) {
 // @Success 200 {object} db.Slot
 // @Router /company/slots [patch]
 func UpdateSlot(c *gin.Context) {
-	if !IsAuthorized(c) {
-		return
-	}
+
 	dbb, exist := c.Get("db")
 	if !exist {
 		return
@@ -289,28 +279,20 @@ func GetCompanyDistance(c *gin.Context) {
 // @Success 200 {object} db.Company
 // @Router /company/info [get]
 func AuthGetCompany(c *gin.Context) {
-	if !IsAuthorized(c) {
-		return
-	}
+
 	dbb, exist := c.Get("db")
 	if !exist {
 		return
 	}
 	dbbb := dbb.(*db.DB)
-	token := c.Request.Header.Get("Authorization")
 
-	// jwt string from token
-	claims := &Claims{}
+	ID, exist := c.Get("id")
 
-	// parse jwt and store in claims
-	tkn, err := jwt.ParseWithClaims(token, claims,
-		func(token *jwt.Token) (interface{}, error) {
-			return jwtKey, nil
-		})
+	if !exist {
+		return
+	}
 
-	ccc := tkn.Claims.(*Claims)
-
-	comp, err := db.GetCompanyByIDNoPass(dbbb, ccc.ID)
+	comp, err := db.GetCompanyByIDNoPass(dbbb, ID.(int))
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -332,10 +314,6 @@ func AuthGetCompany(c *gin.Context) {
 func VerifyCode(c *gin.Context) {
 	code := c.Param("code")
 	fmt.Println(code)
-
-	if !IsAuthorized(c) {
-		return
-	}
 
 	var comp db.Company
 	err := json.NewDecoder(c.Request.Body).Decode(&comp)

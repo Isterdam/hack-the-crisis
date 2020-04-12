@@ -2,31 +2,23 @@ package api
 
 import (
 	"fmt"
+	"os"
 
+	"github.com/Isterdam/hack-the-crisis-backend/src/auth"
 	"github.com/Isterdam/hack-the-crisis-backend/src/db"
-	"github.com/dgrijalva/jwt-go"
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 
 	"encoding/json"
 	"net/http"
-	"os"
 	"time"
 )
-
-// jwt key used to create signature
-var jwtKey = []byte(os.Getenv("JWTKEY"))
 
 // reads credentials from request body
 type Credentials struct {
 	Password string `json:"password"`
 	Username string `json:"username"`
-}
-
-// will be encoded to JWT
-type Claims struct {
-	ID int `json:"id"`
-	jwt.StandardClaims
 }
 
 // CompanyLogin godoc
@@ -82,7 +74,7 @@ func CompanyLogin(c *gin.Context) {
 	// fill claims with username and standard
 	loc, _ := time.LoadLocation("Europe/Stockholm")
 	expirationTime := time.Now().In(loc).Add(12 * time.Hour)
-	claims := &Claims{
+	claims := &auth.Claims{
 		ID: int(loginComp.ID.Int64),
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
@@ -91,6 +83,8 @@ func CompanyLogin(c *gin.Context) {
 
 	// create a token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	jwtKey := []byte(os.Getenv("JWTKEY"))
+
 	tokenString, err := token.SignedString(jwtKey)
 	if err != nil {
 		c.JSON(401, gin.H{
@@ -109,39 +103,4 @@ func CompanyLogin(c *gin.Context) {
 		"message": "Success",
 		"token":   tokenString,
 	})
-}
-
-func IsAuthorized(c *gin.Context) bool {
-	// obtain token from session cookies
-	token := c.Request.Header.Get("Authorization")
-	if token == "" {
-		c.JSON(401, gin.H{
-			"message": "Unauthorized",
-		})
-		return false
-	}
-
-	// jwt string from token
-	claims := &Claims{}
-
-	// parse jwt and store in claims
-	tkn, err := jwt.ParseWithClaims(token, claims,
-		func(token *jwt.Token) (interface{}, error) {
-			return jwtKey, nil
-		})
-	if err != nil {
-		c.JSON(401, gin.H{
-			"message": "Unauthorized",
-		})
-		return false
-	}
-	if !tkn.Valid {
-		c.JSON(401, gin.H{
-			"message": "Unauthorized",
-		})
-		return false
-	}
-
-	// token is valid
-	return true
 }
