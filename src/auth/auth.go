@@ -37,7 +37,7 @@ func IsValidToken(token string, c *Claims) bool {
 		return false
 	}
 
-	c = tkn.Claims.(*Claims)
+	*c = *tkn.Claims.(*Claims)
 
 	// token is valid
 	return true

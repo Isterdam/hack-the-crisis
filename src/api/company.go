@@ -9,7 +9,6 @@ import (
 
 	"github.com/Isterdam/hack-the-crisis-backend/src/db"
 
-	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )
