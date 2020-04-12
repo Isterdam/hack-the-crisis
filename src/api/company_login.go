@@ -29,6 +29,14 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
+// CompanyLogin godoc
+// @Summary Takes in a company as parameter, looks for password hash in database.
+// @Consume json
+// @Produce json
+// @Param company body db.Company true "Company"
+// @Success 200 "Returns "success" and token as body. Also sets cookie with token."
+// @Failure 401 "Unauthorized"
+// @Router /company/login [post]
 func CompanyLogin(c *gin.Context) {
 	var comp db.Company
 	// decode HTTP Request Body JSON
@@ -70,7 +78,7 @@ func CompanyLogin(c *gin.Context) {
 		return
 	}
 
-	// set expiration to now + 30 mins
+	// set expiration to now + 12 hours
 	// fill claims with username and standard
 	loc, _ := time.LoadLocation("Europe/Stockholm")
 	expirationTime := time.Now().In(loc).Add(12 * time.Hour)

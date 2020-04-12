@@ -1,0 +1,367 @@
+basePath: /
+definitions:
+  db.Booking:
+    properties:
+      code:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+      phone_number:
+        type: string
+      slot_id:
+        type: integer
+    type: object
+  db.Company:
+    properties:
+      adress:
+        type: string
+      city:
+        type: string
+      contact_firstname:
+        type: string
+      contact_lastname:
+        type: string
+      contact_number:
+        type: string
+      country:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      latitude:
+        type: number
+      longitude:
+        type: number
+      name:
+        type: string
+      password:
+        type: string
+      post_code:
+        type: string
+      verified:
+        type: boolean
+    type: object
+  db.CompanyPublic:
+    properties:
+      adress:
+        type: string
+      city:
+        type: string
+      country:
+        type: string
+      id:
+        type: integer
+      latitude:
+        type: number
+      longitude:
+        type: number
+      name:
+        type: string
+      post_code:
+        type: string
+    type: object
+  db.Distance:
+    properties:
+      distance:
+        type: integer
+      latMax:
+        type: number
+      latMin:
+        type: number
+      latitude:
+        type: number
+      lonMax:
+        type: number
+      lonMin:
+        type: number
+      longitude:
+        type: number
+      r:
+        type: number
+    type: object
+  db.Slot:
+    properties:
+      company_id:
+        type: integer
+      day:
+        type: integer
+      end_time:
+        type: string
+      id:
+        type: integer
+      max:
+        type: integer
+      start_time:
+        type: string
+    type: object
+info:
+  contact:
+    email: ad5880mu-s@student.lu.se
+    name: API Support
+  description: Swagger API for ShopAlone API
+  license: {}
+  termsOfService: http://swagger.io/terms/
+  title: ShopAlone API
+  version: "1.0"
+paths:
+  /book:
+    post:
+      parameters:
+      - description: Booking
+        in: body
+        name: booking
+        required: true
+        schema:
+          $ref: '#/definitions/db.Booking'
+      summary: '"Books" a certain time by creating a confirmation link that is sent
+        to the user by text. Does NOT add booking to database.'
+  /book/confirm/{code}:
+    post:
+      parameters:
+      - description: Code
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      summary: Confirms a booking and adds it to the database if first time. Gets
+        a ticket if it has already been added to database.
+  /company:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/db.CompanyPublic'
+            type: array
+      summary: Gets all CompanyPublic from database
+    patch:
+      parameters:
+      - description: Company
+        in: body
+        name: company
+        required: true
+        schema:
+          $ref: '#/definitions/db.Company'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.Company'
+      summary: Updates a company in the database, then returns the updated company.
+        Requires authorization.
+    post:
+      parameters:
+      - description: Company
+        in: body
+        name: company
+        required: true
+        schema:
+          $ref: '#/definitions/db.Company'
+      produces:
+      - application/json
+      responses:
+        "200": {}
+      summary: Adds a company to the database
+  /company/code/{code}/verify:
+    post:
+      parameters:
+      - description: Company
+        in: body
+        name: company
+        required: true
+        schema:
+          $ref: '#/definitions/db.Company'
+      - description: Code
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Ticket was verified.
+        "401":
+          description: Ticket could not be verified.
+      summary: Verifies a ticket code for a company. Requires authorization.
+  /company/distance:
+    post:
+      parameters:
+      - description: Distance
+        in: body
+        name: distance
+        required: true
+        schema:
+          $ref: '#/definitions/db.Distance'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/db.CompanyPublic'
+            type: array
+      summary: Gets public companies within a certain distance.
+  /company/info:
+    get:
+      parameters:
+      - description: Token
+        in: header
+        name: authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.Company'
+      summary: Gets a full company by id, no password required. Requires authorization.
+  /company/login:
+    post:
+      parameters:
+      - description: Company
+        in: body
+        name: company
+        required: true
+        schema:
+          $ref: '#/definitions/db.Company'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Returns "success" and token as body. Also sets cookie with
+            token.
+        "401":
+          description: Unauthorized
+      summary: Takes in a company as parameter, looks for password hash in database.
+  /company/slots:
+    get:
+      parameters:
+      - description: Company
+        in: body
+        name: company
+        required: true
+        schema:
+          $ref: '#/definitions/db.Company'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/db.Slot'
+            type: array
+      summary: Gets all slots for a certain company. Requires authorization.
+    patch:
+      parameters:
+      - description: Slot
+        in: body
+        name: slot
+        required: true
+        schema:
+          $ref: '#/definitions/db.Slot'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.Slot'
+      summary: Updates a certain slot, then returns updated slot. Requires authorization.
+    post:
+      parameters:
+      - description: Slots
+        in: body
+        name: slots
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/db.Slot'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200": {}
+      summary: Adds slots to database. Requires authorization.
+  /company/slots/id:
+    get:
+      parameters:
+      - description: Slot
+        in: body
+        name: slot
+        required: true
+        schema:
+          $ref: '#/definitions/db.Slot'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/db.Slot'
+      summary: Gets a full slot. Requires a slot as parameter, but an id in body will
+        suffice.
+  /slot/{slotID}/load:
+    get:
+      parameters:
+      - description: slotID
+        in: path
+        name: slotID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: JSON with "maxAmount", "bookingsAmount"
+      summary: Gets the load of a slot by returning maxAmount of customers and amount
+        of booked customers as JSON.
+  /stores/{store}/day/{day}/slots:
+    get:
+      parameters:
+      - description: Day
+        in: path
+        name: day
+        required: true
+        type: string
+      - description: Store
+        in: path
+        name: store
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/db.Slot'
+            type: array
+      summary: Gets all slots for a certain company on a certain day.
+  /unbook:
+    post:
+      parameters:
+      - description: Code
+        in: path
+        name: code
+        required: true
+        type: string
+      summary: Unbooks a ticket by removing it from the database by code.
+swagger: "2.0"

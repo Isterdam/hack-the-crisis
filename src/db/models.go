@@ -1,6 +1,8 @@
 package db
 
-import "gopkg.in/guregu/null.v3"
+import (
+	"gopkg.in/guregu/null.v3"
+)
 
 type Slot struct {
 	ID        null.Int  `db:"id" json:"id"`

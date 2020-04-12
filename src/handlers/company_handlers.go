@@ -5,12 +5,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Init_company_routes(r *gin.Engine) {
+func InitCompanyRoutes(r *gin.Engine) {
+	r.PATCH("/company", api.UpdateCompany)
 
-	r.PATCH("/company", api.Update_company)
-
-	r.POST("/company", api.Add_company)
-	r.GET("/company", api.Get_company)
+	r.POST("/company", api.AddCompany)
+	r.GET("/company", api.GetCompany)
 	r.POST("/company/distance", api.GetCompanyDistance)
 
 	r.GET("/company/info", api.AuthGetCompany)
@@ -19,14 +18,14 @@ func Init_company_routes(r *gin.Engine) {
 	r.POST("/company/login", api.CompanyLogin)
 
 	// with company token
-	r.POST("/company/slots", api.Add_slots)
-	r.GET("/company/slots", api.Get_slots)
-	r.PATCH("/company/slots", api.Update_slot)
+	r.POST("/company/slots", api.AddSlots)
+	r.GET("/company/slots", api.GetSlots)
+	r.PATCH("/company/slots", api.UpdateSlot)
 
 	// get specific slot
-	r.GET("/company/slots/id", api.Get_slot) 
+	r.GET("/company/slots/id", api.GetSlot)
 
 	// scan qr code
-	r.POST("/company/verify", api.VerifyCode) 
+	r.POST("/company/code/:code/verify", api.VerifyCode)
 	// check that booking is at the logged in company
 }

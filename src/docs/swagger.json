@@ -1,0 +1,559 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Swagger API for ShopAlone API",
+        "title": "ShopAlone API",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "API Support",
+            "email": "ad5880mu-s@student.lu.se"
+        },
+        "license": {},
+        "version": "1.0"
+    },
+    "basePath": "/",
+    "paths": {
+        "/book": {
+            "post": {
+                "summary": "\"Books\" a certain time by creating a confirmation link that is sent to the user by text. Does NOT add booking to database.",
+                "parameters": [
+                    {
+                        "description": "Booking",
+                        "name": "booking",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/db.Booking"
+                        }
+                    }
+                ]
+            }
+        },
+        "/book/confirm/{code}": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Confirms a booking and adds it to the database if first time. Gets a ticket if it has already been added to database.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Code",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/company": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Gets all CompanyPublic from database",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.CompanyPublic"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Adds a company to the database",
+                "parameters": [
+                    {
+                        "description": "Company",
+                        "name": "company",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/db.Company"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {}
+                }
+            },
+            "patch": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Updates a company in the database, then returns the updated company. Requires authorization.",
+                "parameters": [
+                    {
+                        "description": "Company",
+                        "name": "company",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/db.Company"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/db.Company"
+                        }
+                    }
+                }
+            }
+        },
+        "/company/code/{code}/verify": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Verifies a ticket code for a company. Requires authorization.",
+                "parameters": [
+                    {
+                        "description": "Company",
+                        "name": "company",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/db.Company"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Code",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ticket was verified."
+                    },
+                    "401": {
+                        "description": "Ticket could not be verified."
+                    }
+                }
+            }
+        },
+        "/company/distance": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Gets public companies within a certain distance.",
+                "parameters": [
+                    {
+                        "description": "Distance",
+                        "name": "distance",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/db.Distance"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.CompanyPublic"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/company/info": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Gets a full company by id, no password required. Requires authorization.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Token",
+                        "name": "authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/db.Company"
+                        }
+                    }
+                }
+            }
+        },
+        "/company/login": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Takes in a company as parameter, looks for password hash in database.",
+                "parameters": [
+                    {
+                        "description": "Company",
+                        "name": "company",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/db.Company"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns \"success\" and token as body. Also sets cookie with token."
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/company/slots": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Gets all slots for a certain company. Requires authorization.",
+                "parameters": [
+                    {
+                        "description": "Company",
+                        "name": "company",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/db.Company"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.Slot"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Adds slots to database. Requires authorization.",
+                "parameters": [
+                    {
+                        "description": "Slots",
+                        "name": "slots",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.Slot"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {}
+                }
+            },
+            "patch": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Updates a certain slot, then returns updated slot. Requires authorization.",
+                "parameters": [
+                    {
+                        "description": "Slot",
+                        "name": "slot",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/db.Slot"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/db.Slot"
+                        }
+                    }
+                }
+            }
+        },
+        "/company/slots/id": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Gets a full slot. Requires a slot as parameter, but an id in body will suffice.",
+                "parameters": [
+                    {
+                        "description": "Slot",
+                        "name": "slot",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/db.Slot"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/db.Slot"
+                        }
+                    }
+                }
+            }
+        },
+        "/slot/{slotID}/load": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Gets the load of a slot by returning maxAmount of customers and amount of booked customers as JSON.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "slotID",
+                        "name": "slotID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "JSON with \"maxAmount\", \"bookingsAmount\""
+                    }
+                }
+            }
+        },
+        "/stores/{store}/day/{day}/slots": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Gets all slots for a certain company on a certain day.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Day",
+                        "name": "day",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Store",
+                        "name": "store",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.Slot"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/unbook": {
+            "post": {
+                "summary": "Unbooks a ticket by removing it from the database by code.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Code",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    }
+                ]
+            }
+        }
+    },
+    "definitions": {
+        "db.Booking": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "slot_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "db.Company": {
+            "type": "object",
+            "properties": {
+                "adress": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "contact_firstname": {
+                    "type": "string"
+                },
+                "contact_lastname": {
+                    "type": "string"
+                },
+                "contact_number": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "post_code": {
+                    "type": "string"
+                },
+                "verified": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "db.CompanyPublic": {
+            "type": "object",
+            "properties": {
+                "adress": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "post_code": {
+                    "type": "string"
+                }
+            }
+        },
+        "db.Distance": {
+            "type": "object",
+            "properties": {
+                "distance": {
+                    "type": "integer"
+                },
+                "latMax": {
+                    "type": "number"
+                },
+                "latMin": {
+                    "type": "number"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "lonMax": {
+                    "type": "number"
+                },
+                "lonMin": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "r": {
+                    "type": "number"
+                }
+            }
+        },
+        "db.Slot": {
+            "type": "object",
+            "properties": {
+                "company_id": {
+                    "type": "integer"
+                },
+                "day": {
+                    "type": "integer"
+                },
+                "end_time": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "max": {
+                    "type": "integer"
+                },
+                "start_time": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
