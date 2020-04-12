@@ -10,6 +10,8 @@ require (
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/lib/pq v1.0.0
 	github.com/skip2/go-qrcode v0.0.0-20191027152451-9434209cb086
+	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14
+	github.com/swaggo/gin-swagger v1.2.0
 	github.com/swaggo/swag v1.6.5
 	golang.org/x/crypto v0.0.0-20200403201458-baeed622b8d8
 	gopkg.in/guregu/null.v3 v3.4.0
