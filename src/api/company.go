@@ -154,15 +154,14 @@ func GetSlots(c *gin.Context) {
 	}
 	dbbb := dbb.(*db.DB)
 
-	var comp db.Company
-	err := json.NewDecoder(c.Request.Body).Decode(&comp)
-	if err != nil {
-		fmt.Println(err)
+	id, exist := c.Get("id")
+	if !exist {
 		return
 	}
 
 	var slots []db.Slot
-	slots, err = db.GetSlotsByCompany(dbbb, int(comp.ID.Int64))
+	slots, err := db.GetSlotsByCompany(dbbb, id.(int))
+
 	if err != nil {
 		fmt.Println(err)
 	}
