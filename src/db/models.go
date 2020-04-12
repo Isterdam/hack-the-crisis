@@ -11,6 +11,7 @@ type Slot struct {
 	EndTime   null.Time `db:"end_time" json:"end_time"`
 	MaxAmount null.Int  `db:"max" json:"max"`
 	Day       null.Int  `db:"day" json:"day"`
+	Booked    null.Int  `db:"booked" json:"booked"`
 }
 
 type Company struct {
@@ -28,6 +29,7 @@ type Company struct {
 	Verified   null.Bool   `db:"verified" json:"verified"`
 	Email      null.String `db:"email" json:"email"`
 	Password   null.String `db:"password" json:"password,omitempty"`
+	CEmail     null.String `db:"contact_email" json:"contact_email"`
 }
 
 type CompanyPublic struct {
@@ -45,6 +47,7 @@ type CompanyPublic struct {
 	Verified   null.Bool   `db:"verified" json:"-"`
 	Email      null.String `db:"email" json:"-"`
 	Password   null.String `db:"password" json:"-"`
+	CEmail     null.String `db:"contact_email" json:"-"`
 }
 
 type Booking struct {

@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"time"
 
 	"github.com/Isterdam/hack-the-crisis-backend/src/db"
+
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -40,6 +43,9 @@ func AddCompany(c *gin.Context) {
 	}
 
 	comp.Password.String = string(hash)
+
+	comp.Latitude.Float64 = comp.Latitude.Float64 / 180 * math.Pi
+	comp.Longitude.Float64 = comp.Longitude.Float64 / 180 * math.Pi
 
 	err = db.InsertCompany(dbbb, comp)
 
@@ -245,6 +251,9 @@ func GetCompanyDistance(c *gin.Context) {
 		return
 	}
 
+	dist.Latitude = dist.Latitude / 180 * math.Pi
+	dist.Longitude = dist.Longitude / 180 * math.Pi
+
 	dist.R = float64(dist.Distance) / 6371
 
 	r := dist.R
@@ -263,6 +272,11 @@ func GetCompanyDistance(c *gin.Context) {
 	dbbb := dbb.(*db.DB)
 
 	comps, err := db.GetCompaniesWithinDistance(dbbb, dist)
+
+	for i := range comps {
+		comps[i].Latitude.Float64 = comps[i].Latitude.Float64 / math.Pi * 180
+		comps[i].Longitude.Float64 = comps[i].Longitude.Float64 / math.Pi * 180
+	}
 
 	if err != nil {
 		return
@@ -313,7 +327,6 @@ func AuthGetCompany(c *gin.Context) {
 // @Router /company/code/{code}/verify [post]
 func VerifyCode(c *gin.Context) {
 	code := c.Param("code")
-	fmt.Println(code)
 
 	var comp db.Company
 	err := json.NewDecoder(c.Request.Body).Decode(&comp)
@@ -344,7 +357,8 @@ func VerifyCode(c *gin.Context) {
 
 	bookingCompanyID := int(slot.CompanyID.Int64)
 
-	if loggedInCompanyID == bookingCompanyID {
+	validTime := time.Now().After(slot.StartTime.Time) && time.Now().Before(slot.EndTime.Time)
+	if loggedInCompanyID == bookingCompanyID && validTime {
 		c.JSON(200, gin.H{
 			"message": "Ticket verified!",
 		})
