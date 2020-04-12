@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"time"
 
 	"github.com/Isterdam/hack-the-crisis-backend/src/db"
 	jwt "github.com/dgrijalva/jwt-go"
@@ -342,7 +343,6 @@ func AuthGetCompany(c *gin.Context) {
 // @Router /company/code/{code}/verify [post]
 func VerifyCode(c *gin.Context) {
 	code := c.Param("code")
-	fmt.Println(code)
 
 	if !IsAuthorized(c) {
 		return
@@ -377,7 +377,8 @@ func VerifyCode(c *gin.Context) {
 
 	bookingCompanyID := int(slot.CompanyID.Int64)
 
-	if loggedInCompanyID == bookingCompanyID {
+	validTime := time.Now().After(slot.StartTime.Time) && time.Now().Before(slot.EndTime.Time)
+	if loggedInCompanyID == bookingCompanyID && validTime {
 		c.JSON(200, gin.H{
 			"message": "Ticket verified!",
 		})
