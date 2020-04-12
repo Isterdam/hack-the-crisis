@@ -238,11 +238,11 @@ func GetSlot(c *gin.Context) {
 }
 
 // GetCompanyDistance godoc
-// @Summary Gets companies within a certain distance.
+// @Summary Gets public companies within a certain distance.
 // @Consume json
 // @Produce json
 // @Param distance body db.Distance true "Distance"
-// @Success 200 {array} db.Company
+// @Success 200 {array} db.CompanyPublic
 // @Router /company/distance [post]
 func GetCompanyDistance(c *gin.Context) {
 	var dist db.Distance

@@ -75,10 +75,10 @@ func GetCompanyByEmail(db *DB, email string) (Company, error) {
 	return retComp, err
 }
 
-func GetCompaniesWithinDistance(db *DB, dist Distance) ([]Company, error) {
+func GetCompaniesWithinDistance(db *DB, dist Distance) ([]CompanyPublic, error) {
 	stmt := db.prepared["company/distance"]
 
-	comps := []Company{}
+	comps := []CompanyPublic{}
 	err := stmt.Select(&comps, dist.LatMin, dist.LatMax, dist.LonMin, dist.LonMax, dist.Latitude, dist.Longitude, dist.R)
 
 	return comps, err

@@ -149,7 +149,7 @@
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Gets companies within a certain distance.",
+                "summary": "Gets public companies within a certain distance.",
                 "parameters": [
                     {
                         "description": "Distance",
@@ -167,7 +167,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/db.Company"
+                                "$ref": "#/definitions/db.CompanyPublic"
                             }
                         }
                     }
