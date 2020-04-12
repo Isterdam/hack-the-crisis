@@ -15,6 +15,11 @@ import (
 	"time"
 )
 
+type Interval struct {
+	StartTime time.Time `json:"start_time"`
+	EndTime   time.Time `json:"end_time"`
+}
+
 // GetStoreSlots godoc
 // @Summary Gets all slots for a certain company on a certain day.
 // @Produce json
@@ -23,8 +28,13 @@ import (
 // @Success 200 {array} db.Slot
 // @Router /stores/{store}/day/{day}/slots [get]
 func GetStoreSlots(c *gin.Context) {
-	dayStr := c.Param("day")
-	day, _ := strconv.Atoi(dayStr)
+	var interval Interval
+	err := json.NewDecoder(c.Request.Body).Decode(&interval)
+	isInter := false
+
+	if err == nil {
+		isInter = true
+	}
 
 	storeIDStr := c.Param("store")
 	storeID, _ := strconv.Atoi(storeIDStr)
@@ -35,16 +45,16 @@ func GetStoreSlots(c *gin.Context) {
 	}
 	dbbb := dbb.(*db.DB)
 
-	slots, _ := db.GetSlotsByCompany(dbbb, storeID)
+	var slots []db.Slot
 
-	var slotsByDay []db.Slot
-	for _, slot := range slots {
-		if int(slot.Day.Int64) == day {
-			slotsByDay = append(slotsByDay, slot)
-		}
+	if !isInter {
+		slots, err = db.GetSlotsByCompany(dbbb, storeID)
+
+	} else {
+		slots, err = db.GetSlotsByCompanyAndBetween(dbbb, storeID, interval.StartTime, interval.EndTime)
 	}
 
-	c.JSON(http.StatusOK, slotsByDay)
+	c.JSON(http.StatusOK, slots)
 }
 
 // BookTime godoc

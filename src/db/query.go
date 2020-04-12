@@ -23,4 +23,5 @@ var queries = []KVP{
 	KVP{K: "company/slot/getAll", V: "SELECT * FROM slots WHERE company_id=$1"},
 	KVP{K: "company/slot/update", V: "UPDATE slots SET start_time=$2, end_time=$3, max=$4, day=$5 WHERE id=$1 RETURNING *"},
 	KVP{K: "company/slot/add", V: "INSERT INTO slots (id, company_id, start_time, end_time, max, day) VALUES (DEFAULT, $1, $2, $3, $4, $5)"},
+	KVP{K: "company/slot/get/betweenTime", V: "select * from slots where start_time between $1 AND $2 AND company_id = $3"},
 }
