@@ -284,10 +284,9 @@ func GetCompanyDistance(c *gin.Context) {
 }
 
 // AuthGetCompany godoc
-// @Summary Gets a full company by id, no password required. Requires authorization.
+// @Summary Gets a full company by id, no password required. Requires authorization. Gets company from context.
 // @Consume json
 // @Produce json
-// @Param authorization header string true "Token"
 // @Success 200 {object} db.Company
 // @Router /company/info [get]
 func AuthGetCompany(c *gin.Context) {
