@@ -24,6 +24,7 @@ func InitCompanyRoutes(r *gin.Engine) {
 		auth.POST("/company/slots", api.AddSlots)
 		auth.GET("/company/slots", api.GetSlots)
 		auth.PATCH("/company/slots", api.UpdateSlot)
+		auth.DELETE("/company/slots", api.DeleteSlots)
 	}
 	// get specific slot
 	r.GET("/company/slots/id", api.GetSlot)

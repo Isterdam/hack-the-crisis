@@ -2,6 +2,8 @@ package db
 
 import (
 	"time"
+
+	"github.com/jmoiron/sqlx"
 )
 
 func GetSlot(db *DB, slotID int) (Slot, error) {
@@ -41,4 +43,29 @@ func UpdateSlot(db *DB, slot Slot) (Slot, error) {
 	err := stmt.QueryRowx(slot.ID, slot.StartTime, slot.EndTime, slot.MaxAmount).StructScan(&newSlot)
 
 	return newSlot, err
+}
+
+func DeleteSlots(db *DB, slotIDs []int) ([]Slot, error) {
+	//deletedSlots := []Slot{}
+	query := "DELETE FROM slots WHERE id IN (?) RETURNING *"
+	query, args, err := sqlx.In(query, slotIDs)
+
+	query = db.DB.Rebind(query)
+	stmt, err := db.DB.Preparex(query)
+
+	_, err = stmt.Queryx(args...)
+
+	return nil, err
+}
+
+func GetSlotsByID(db *DB, slotIDs []int, cID int) ([]Slot, error) {
+	var slots []Slot
+	query := "SELECT * from slots WHERE company_id = ? AND id IN (?)"
+	newq, args, err := sqlx.In(query, cID, slotIDs)
+
+	query = db.DB.Rebind(newq)
+	stmt, err := db.DB.Preparex(query)
+	err = stmt.Select(&slots, args...)
+
+	return slots, err
 }
