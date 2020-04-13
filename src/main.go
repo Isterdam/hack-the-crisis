@@ -49,7 +49,7 @@ func main() {
 	// localhost:8080/swagger/index.html to access documentation
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	api.Initialize_constants()
+	api.InitializeCache()
 	handlers.InitPublicRoutes(r)
 	handlers.InitCompanyRoutes(r)
 

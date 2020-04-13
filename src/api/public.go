@@ -76,7 +76,7 @@ func BookTime(c *gin.Context) {
 	ticketCode := generateTicketCode(booking)
 	booking.Code = null.StringFrom(ticketCode)
 	// whitelist ticked code - to be checked at confirmation if it is contained
-	Confirmed[ticketCode] = booking
+	ConfirmedBookings[ticketCode] = booking
 
 	url := "www.shopalone.se" + c.Request.URL.Path + "/confirm/" + ticketCode
 
@@ -126,19 +126,19 @@ func ConfirmBookAndGetTicket(c *gin.Context) {
 
 	booking, _ := db.GetBooking(dbbb, code)
 
-	if Confirmed[code].PhoneNumber.String == "" && booking.PhoneNumber.String == "" {
+	if ConfirmedBookings[code].PhoneNumber.String == "" && booking.PhoneNumber.String == "" {
 		// booking does not exist
 		fmt.Println("Booking does not exist!")
 		return
-	} else if Confirmed[code].PhoneNumber.String == "" && booking.PhoneNumber.String != "" {
+	} else if ConfirmedBookings[code].PhoneNumber.String == "" && booking.PhoneNumber.String != "" {
 		// booking exists and has been added to database
 		c.JSON(200, booking)
 	} else {
 		// booking exists but has not yet been added to database
-		db.InsertBooking(dbbb, Confirmed[code])
+		db.InsertBooking(dbbb, ConfirmedBookings[code])
 		booking, _ = db.GetBooking(dbbb, code)
 		c.JSON(200, booking)
-		delete(Confirmed, code) // delete entry from map
+		delete(ConfirmedBookings, code) // delete entry from map
 	}
 }
 
