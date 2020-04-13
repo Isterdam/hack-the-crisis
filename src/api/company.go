@@ -70,7 +70,7 @@ func GetCompany(c *gin.Context) {
 	}
 	dbbb := dbb.(*db.DB)
 
-	comp, err := db.GetCompaniesPublic(dbbb)
+	comp, err := db.GetCompaniesVerifiedPublic(dbbb)
 
 	if err != nil {
 		fmt.Println(err)
