@@ -1,7 +1,7 @@
 package db
 
 import (
-	"gopkg.in/guregu/null.v3"
+	null "gopkg.in/guregu/null.v3"
 )
 
 func GetCompanyByID(db *DB, id int) (Company, error) {
@@ -19,6 +19,14 @@ func GetCompanyByIDNoPass(db *DB, id int) (Company, error) {
 
 	comp.Password = null.NewString("", false)
 	return comp, err
+}
+
+func GetCompaniesVerifiedPublic(db *DB) ([]CompanyPublic, error) {
+	stmt := db.prepared["company/get/verified"]
+	comps := []CompanyPublic{}
+	err := stmt.Select(&comps)
+
+	return comps, err
 }
 
 func GetCompanies(db *DB) ([]Company, error) {
