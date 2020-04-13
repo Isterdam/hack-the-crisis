@@ -36,13 +36,11 @@ func DeleteSlots(c *gin.Context) {
 		return
 	}
 
-	_, err = db.DeleteSlots(dbbb, slotIDs)
+	dSlots, err := db.DeleteSlots(dbbb, slotIDs)
 
 	if err != nil {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Success",
-	})
+	c.JSON(http.StatusOK, dSlots)
 }

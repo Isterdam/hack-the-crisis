@@ -46,16 +46,22 @@ func UpdateSlot(db *DB, slot Slot) (Slot, error) {
 }
 
 func DeleteSlots(db *DB, slotIDs []int) ([]Slot, error) {
-	//deletedSlots := []Slot{}
+	deletedSlots := []Slot{}
 	query := "DELETE FROM slots WHERE id IN (?) RETURNING *"
 	query, args, err := sqlx.In(query, slotIDs)
 
 	query = db.DB.Rebind(query)
 	stmt, err := db.DB.Preparex(query)
 
-	_, err = stmt.Queryx(args...)
+	rows, err := stmt.Queryx(args...)
 
-	return nil, err
+	for rows.Next() {
+		var slot Slot
+		rows.StructScan(&slot)
+		deletedSlots = append(deletedSlots, slot)
+	}
+
+	return deletedSlots, err
 }
 
 func GetSlotsByID(db *DB, slotIDs []int, cID int) ([]Slot, error) {
