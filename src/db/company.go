@@ -97,7 +97,7 @@ func GetCompaniesWithinDistance(db *DB, dist Distance) ([]CompanyPublic, error) 
 }
 
 func GetCompaniesAvailability(db *DB, compIDs []int, week int) ([]Availabilty, error) {
-	query := `SELECT coalesce(company_id, crossp.id) as comp_id, coalesce(day, crossp.d) as dow, coalesce( sum(booked) / sum(max) ::float, 0) as avg
+	query := `SELECT coalesce(company_id, crossp.id::int) as comp_id, coalesce(day, crossp.d) as dow, coalesce( sum(booked) / sum(max) ::float, 0) as avg
 	FROM 
 	(
 		SELECT company_id, date_part('dow', start_time) as day, max, booked from slots s
@@ -109,7 +109,7 @@ func GetCompaniesAvailability(db *DB, compIDs []int, week int) ([]Availabilty, e
 		SELECT a.d, c.id 
 		FROM ( VALUES (1), (2), (3), (4), (5), (6), (0)) a (d)
 		CROSS JOIN (VALUES (?)) c (id)
-	) crossp ON crossp.d=t.day AND crossp.id=t.company_id
+	) crossp ON crossp.d=t.day AND crossp.id::int=t.company_id::int
 	GROUP BY comp_id, dow
 	ORDER BY comp_id`
 
@@ -122,10 +122,10 @@ func GetCompaniesAvailability(db *DB, compIDs []int, week int) ([]Availabilty, e
 	stmt, err := db.DB.Preparex(query)
 	fmt.Println(err)
 
-	var res []CompanyAvailabilityAverage
+	res := []CompanyAvailabilityAverage{}
 
-	err = stmt.Select(&res, args)
+	err = stmt.Select(&res, args...)
 
-	fmt.Println(err)
+	fmt.Printf("%#v", res) //Resultat som ska omvandlas till 'Availabilty' structen
 	return nil, nil
 }
