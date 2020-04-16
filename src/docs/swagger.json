@@ -194,6 +194,41 @@
                 }
             }
         },
+        "/company/distance/{lon}/{lat}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Iteratively searches for companies, starting with 5 kilometers and increasing, until at least 10 companies have been found",
+                "parameters": [
+                    {
+                        "type": "number",
+                        "description": "Longitude",
+                        "name": "lon",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Latitude",
+                        "name": "lat",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.CompanyPublic"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/company/info": {
             "get": {
                 "produces": [
