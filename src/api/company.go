@@ -5,28 +5,24 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"math/rand"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/Isterdam/hack-the-crisis-backend/src/db"
-
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )
 
 // AddCompany godoc
-// @Summary Adds a company to the database
+// @Summary Sends an email to company asking them to confirm
 // @Consume json
 // @Produce json
 // @Param company body db.Company true "Company"
 // @Success 200
 // @Router /company [post]
 func AddCompany(c *gin.Context) {
-	dbb, exist := c.Get("db")
-	if !exist {
-		return
-	}
-
-	dbbb := dbb.(*db.DB)
 	var comp db.Company
 	err := json.NewDecoder(c.Request.Body).Decode(&comp)
 
@@ -46,16 +42,55 @@ func AddCompany(c *gin.Context) {
 	comp.Latitude.Float64 = comp.Latitude.Float64 / 180 * math.Pi
 	comp.Longitude.Float64 = comp.Longitude.Float64 / 180 * math.Pi
 
-	err = db.InsertCompany(dbbb, comp)
+	code := generateVerifyingCode(comp)
+	r := strings.NewReplacer("ä", "a",
+		"å", "a",
+		"ö", "o")
+	code = r.Replace(code)
+	ConfirmedCompanies[code] = comp
 
-	if err != nil {
-		fmt.Printf("%s", err)
+	url := "www.shopalone.se" + c.Request.URL.Path + "/confirm/" + code
+	msg := "Hello " + comp.Name.String + "!\n\n" + "Please confirm your email at ShopAlone in the link below:\n\n" + url
+
+	// slow af so parallellize that shit
+	go SendMail(comp.Email.String, "Confirm your email at ShopAlone", msg)
+}
+
+func generateVerifyingCode(company db.Company) string {
+	// last 2 digits of current time + random num [10, 100) + company name (where space is replaced by underscore)
+	return strconv.FormatInt(time.Now().Unix(), 10)[8:] + strconv.Itoa(10+rand.Intn(90)) + strings.ReplaceAll(company.Name.String, " ", "_")
+}
+
+// ConfirmCompany godoc
+// @Summary Confirms a company and adds it to the database
+// @Produce json
+// @Param code path string true "Code"
+// @Success 200
+// @Router /company/confirm/{code} [post]
+func ConfirmCompany(c *gin.Context) {
+	code := c.Param("code")
+
+	dbb, exist := c.Get("db")
+	if !exist {
 		return
 	}
+	dbbb := dbb.(*db.DB)
 
-	c.JSON(200, gin.H{
-		"message": "Success",
-	})
+	if ConfirmedCompanies[code].Email.String == "" {
+		fmt.Println("Company does not exist!")
+		return
+	} else {
+		// add company verified = true here?
+		err := db.InsertCompany(dbbb, ConfirmedCompanies[code])
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		delete(ConfirmedCompanies, code)
+		c.JSON(200, gin.H{
+			"message": "Company successfully added!",
+		})
+	}
 }
 
 // GetCompany godoc

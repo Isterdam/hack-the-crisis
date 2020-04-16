@@ -9,6 +9,7 @@ import (
 func InitCompanyRoutes(r *gin.Engine) {
 
 	r.POST("/company", api.AddCompany)
+	r.POST("/company/confirm/:code", api.ConfirmCompany)
 	r.GET("/company", api.GetCompany)
 	r.POST("/company/distance", api.GetCompanyDistance)
 

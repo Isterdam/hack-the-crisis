@@ -68,7 +68,7 @@
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Adds a company to the database",
+                "summary": "Sends an email to company asking them to confirm",
                 "parameters": [
                     {
                         "description": "Company",
@@ -141,6 +141,26 @@
                     "401": {
                         "description": "Ticket could not be verified."
                     }
+                }
+            }
+        },
+        "/company/confirm/{code}": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Confirms a company and adds it to the database",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Code",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {}
                 }
             }
         },

@@ -177,7 +177,7 @@ paths:
       - application/json
       responses:
         "200": {}
-      summary: Adds a company to the database
+      summary: Sends an email to company asking them to confirm
   /company/code/{code}/verify:
     post:
       parameters:
@@ -200,6 +200,19 @@ paths:
         "401":
           description: Ticket could not be verified.
       summary: Verifies a ticket code for a company. Requires authorization.
+  /company/confirm/{code}:
+    post:
+      parameters:
+      - description: Code
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200": {}
+      summary: Confirms a company and adds it to the database
   /company/distance:
     post:
       parameters:
