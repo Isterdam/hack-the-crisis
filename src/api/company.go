@@ -324,7 +324,7 @@ func GetCompanyDistance(c *gin.Context) {
 // @Param lon path number true "Longitude"
 // @Param lat path number true "Latitude"
 // @Success 200 {array} db.CompanyPublic
-// @Router /company/distance/{lon}/{lat} [get]
+// @Router /company/search/{lon}/{lat} [get]
 func SearchForCompanies(c *gin.Context) {
 	dbb, exist := c.Get("db")
 	if !exist {
