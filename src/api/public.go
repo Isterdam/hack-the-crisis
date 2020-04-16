@@ -98,7 +98,7 @@ func BookTime(c *gin.Context) {
 	confirmation := "Hej " + booking.FirstName.String + "!\n\n" + "Vänligen bekräfta din bokning på " + store.Name.String + " klockan " + timeStr + " och hämta sedan din biljett genom länken nedan:\n\n" + url
 
 	fmt.Println(confirmation)
-	// Send_text(c, booking.PhoneNumber.String, confirmation)
+	// go Send_text(c, booking.PhoneNumber.String, confirmation)
 
 	c.JSON(200, gin.H{
 		"message": "Booking was successful",

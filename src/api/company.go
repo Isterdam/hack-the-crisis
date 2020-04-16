@@ -318,6 +318,74 @@ func GetCompanyDistance(c *gin.Context) {
 	c.JSON(200, comps)
 }
 
+// SearchForCompanies godoc
+// @Summary Iteratively searches for companies, starting with 5 kilometers and increasing, until at least 10 companies have been found
+// @Produce json
+// @Param lon path number true "Longitude"
+// @Param lat path number true "Latitude"
+// @Success 200 {array} db.CompanyPublic
+// @Router /company/distance/{lon}/{lat} [get]
+func SearchForCompanies(c *gin.Context) {
+	dbb, exist := c.Get("db")
+	if !exist {
+		return
+	}
+	dbbb := dbb.(*db.DB)
+
+	var dist db.Distance
+
+	lon, _ := strconv.ParseFloat(c.Param("lon"), 64)
+	lat, _ := strconv.ParseFloat(c.Param("lat"), 64)
+
+	dist.Latitude = lat / 180 * math.Pi
+	dist.Longitude = lon / 180 * math.Pi
+
+	dist.Distance = 5
+	var comps map[db.CompanyPublic]bool
+	comps = make(map[db.CompanyPublic]bool)
+
+	for i := 0; i < 6; i++ {
+		if len(comps) >= 10 {
+			break
+		}
+		dist.R = float64(dist.Distance) / 6371
+
+		r := dist.R
+		dist.LatMax = dist.Latitude + r
+		dist.LatMin = dist.Latitude - r
+
+		dlon := math.Asin(math.Sin(r) / math.Cos(dist.Latitude))
+
+		dist.LonMin = dist.Longitude - dlon
+		dist.LonMax = dist.Longitude + dlon
+
+		compsAppend, err := db.GetCompaniesWithinDistance(dbbb, dist)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		for _, comp := range compsAppend {
+			comps[comp] = true
+		}
+
+		dist.Distance = int(float64(dist.Distance) * increaseDistance(len(comps)))
+	}
+
+	var compsSlice []db.CompanyPublic
+	for comp, _ := range comps {
+		compsSlice = append(compsSlice, comp)
+	}
+
+	c.JSON(200, compsSlice)
+}
+
+// super proprietary function to increase distance while searching for stores
+// parameter x is #stores currently found
+func increaseDistance(x int) float64 {
+	return 1 + (2 / (math.Exp(float64(x))))
+}
+
 // AuthGetCompany godoc
 // @Summary Gets a full company by id, no password required. Requires authorization. Gets company from context.
 // @Consume json
