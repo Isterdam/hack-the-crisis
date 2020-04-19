@@ -207,7 +207,9 @@ func GetCompanyAvailability(c *gin.Context) {
 	var compIDs []int
 	err := json.NewDecoder(c.Request.Body).Decode(&compIDs)
 
-	fmt.Println(err)
+	if err != nil {
+		return
+	}
 	dbb, exist := c.Get("db")
 	if !exist {
 		return
