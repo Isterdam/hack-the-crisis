@@ -8,6 +8,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// DeleteSlots godoc
+// @Summary Takes in JSON array of slot IDs, deletes them in database and returns the deleted slots
+// @Consume json
+// @Produce json
+// @Param slotIDs body []integer true "Slot IDs"
+// @Success 200 {array} db.Slot
+// @Router /company/slots [delete]
 func DeleteSlots(c *gin.Context) {
 	dbb, exist := c.Get("db")
 	if !exist {

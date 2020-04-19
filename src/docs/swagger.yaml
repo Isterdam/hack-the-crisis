@@ -286,6 +286,27 @@ paths:
       summary: Iteratively searches for companies, starting with 5 kilometers and
         increasing, until at least 10 companies have been found
   /company/slots:
+    delete:
+      parameters:
+      - description: Slot IDs
+        in: body
+        name: slotIDs
+        required: true
+        schema:
+          items:
+            type: integer
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/db.Slot'
+            type: array
+      summary: Takes in JSON array of slot IDs, deletes them in database and returns
+        the deleted slots
     get:
       parameters:
       - description: Company
