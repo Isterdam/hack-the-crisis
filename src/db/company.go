@@ -107,25 +107,76 @@ func GetCompaniesAvailability(db *DB, compIDs []int, week int) ([]Availabilty, e
 	) t 
 	RIGHT JOIN (
 		SELECT a.d, c.id 
-		FROM ( VALUES (1), (2), (3), (4), (5), (6), (0)) a (d)
-		CROSS JOIN (VALUES (?)) c (id)
+		FROM company c
+		CROSS JOIN ( VALUES (1), (2), (3), (4), (5), (6), (0)) a (d)
+		WHERE c.id IN (?)
 	) crossp ON crossp.d=t.day AND crossp.id::int=t.company_id::int
 	GROUP BY comp_id, dow
 	ORDER BY comp_id`
 
 	query, args, err := sqlx.In(query, compIDs, week, compIDs)
 
-	fmt.Println(err)
 	query = db.DB.Rebind(query)
-	fmt.Println(query)
 
 	stmt, err := db.DB.Preparex(query)
-	fmt.Println(err)
 
-	res := []CompanyAvailabilityAverage{}
+	res := []struct {
+		CompanyID null.Int   `db:"comp_id"`
+		DayOfWeek null.Int   `db:"dow"`
+		Average   null.Float `db:"avg"`
+	}{} //, len(compIDs)*7) //[]CompanyAvailabilityAverage{}
 
 	err = stmt.Select(&res, args...)
 
-	fmt.Printf("%#v", res) //Resultat som ska omvandlas till 'Availabilty' structen
-	return nil, nil
+	query = `SELECT coalesce(t.company_id, crossp.id::int) as comp_id, coalesce(t.dow, crossp.d) as dow, coalesce(t.count, 0) as count
+	FROM 
+	(
+		SELECT company_id, date_part('dow', start_time) as dow, count(id) as count from slots s
+		WHERE company_id IN (?) 
+		AND booked < max
+		AND date_part('week', start_time) = (?)
+		GROUP BY company_id, dow
+	) t
+	RIGHT JOIN (
+		SELECT a.d, c.id 
+		FROM company c
+		CROSS JOIN ( VALUES (1), (2), (3), (4), (5), (6), (0)) a (d)
+		WHERE c.id IN (?)
+	) crossp ON crossp.d=t.dow AND crossp.id=t.company_id
+	ORDER BY comp_id, dow`
+
+	query, args, err = sqlx.In(query, compIDs, week, compIDs)
+
+	query = db.DB.Rebind(query)
+
+	stmt, err = db.DB.Preparex(query)
+
+	ress := []struct {
+		CompanyID null.Int `db:"comp_id"`
+		DayOfWeek null.Int `db:"dow"`
+		Count     null.Int `db:"count"`
+	}{}
+
+	err = stmt.Select(&ress, args...)
+
+	av := make([]Availabilty, len(compIDs))
+
+	count := 0
+
+	for i := range av {
+		av[i].CompanyID = int(res[count].CompanyID.Int64)
+		av[i].DailyAvailable = make([]float64, 7)
+		av[i].AvailableSlots = make([]int, 7)
+		for j := 0; j < 7; j++ {
+			day := res[count].DayOfWeek.Int64 - 1
+			if day == -1 {
+				day = 6
+			}
+			av[i].DailyAvailable[day] = res[count].Average.Float64
+			av[i].AvailableSlots[day] = int(ress[count].Count.Int64)
+			count++
+		}
+	}
+
+	return av, err
 }

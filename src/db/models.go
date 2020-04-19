@@ -74,9 +74,3 @@ type Availabilty struct {
 	DailyAvailable []float64 `json:"availability_average"`
 	AvailableSlots []int     `json:"available_slots`
 }
-
-type CompanyAvailabilityAverage struct {
-	CompanyID int     `db:"comp_id"`
-	DayOfWeek int     `db:"dow"`
-	Average   float64 `db:"avg"`
-}

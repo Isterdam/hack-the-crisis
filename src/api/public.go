@@ -214,5 +214,7 @@ func GetCompanyAvailability(c *gin.Context) {
 	}
 	dbbb := dbb.(*db.DB)
 
-	db.GetCompaniesAvailability(dbbb, compIDs, week)
+	av, err := db.GetCompaniesAvailability(dbbb, compIDs, week)
+
+	c.JSON(200, av)
 }
