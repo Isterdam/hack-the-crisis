@@ -199,3 +199,22 @@ func GetSlotLoad(c *gin.Context) {
 		"bookingsAmount": bookingsAmount,
 	})
 }
+
+func GetCompanyAvailability(c *gin.Context) {
+	weekStr := c.Param("week")
+	week, _ := strconv.Atoi(weekStr)
+
+	var compIDs []int
+	err := json.NewDecoder(c.Request.Body).Decode(&compIDs)
+
+	fmt.Println(err)
+	dbb, exist := c.Get("db")
+	if !exist {
+		return
+	}
+	dbbb := dbb.(*db.DB)
+
+	av, err := db.GetCompaniesAvailability(dbbb, compIDs, week)
+
+	c.JSON(200, av)
+}

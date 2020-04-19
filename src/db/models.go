@@ -68,3 +68,9 @@ type Distance struct {
 	LatMin    float64
 	R         float64
 }
+
+type Availabilty struct {
+	CompanyID      int       `json:"id"`
+	DailyAvailable []float64 `json:"availability_average"`
+	AvailableSlots []int     `json:"available_slots`
+}
