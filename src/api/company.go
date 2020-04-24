@@ -13,6 +13,7 @@ import (
 	"github.com/Isterdam/hack-the-crisis-backend/src/db"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
+	null "gopkg.in/guregu/null.v3"
 )
 
 // AddCompany godoc
@@ -315,6 +316,7 @@ func GetCompanyDistance(c *gin.Context) {
 	for i := range comps {
 		comps[i].Latitude.Float64 = comps[i].Latitude.Float64 / math.Pi * 180
 		comps[i].Longitude.Float64 = comps[i].Longitude.Float64 / math.Pi * 180
+		comps[i].DistToUser = null.FloatFrom(distance(dist.Latitude*(180/math.Pi), dist.Longitude*(180/math.Pi), float64(comps[i].Latitude.Float64), float64(comps[i].Longitude.Float64)))
 	}
 
 	if err != nil {
@@ -347,8 +349,8 @@ func SearchForCompanies(c *gin.Context) {
 	dist.Longitude = lon / 180 * math.Pi
 
 	dist.Distance = 5
-	var comps map[db.CompanyPublic]bool
-	comps = make(map[db.CompanyPublic]bool)
+	var comps map[string]db.CompanyPublic
+	comps = make(map[string]db.CompanyPublic)
 
 	for i := 0; i < 6; i++ {
 		if len(comps) >= 10 {
@@ -372,14 +374,17 @@ func SearchForCompanies(c *gin.Context) {
 		}
 
 		for _, comp := range compsAppend {
-			comps[comp] = true
+			comp.DistToUser = null.FloatFrom(distance(dist.Latitude*(180/math.Pi), dist.Longitude*(180/math.Pi), float64(comp.Latitude.Float64)*(180/math.Pi), float64(comp.Longitude.Float64)*(180/math.Pi)))
+			comps[comp.Name.String] = comp
 		}
 
 		dist.Distance = int(float64(dist.Distance) * increaseDistance(len(comps)))
 	}
 
 	var compsSlice []db.CompanyPublic
-	for comp, _ := range comps {
+	for _, comp := range comps {
+		comp.Latitude.Float64 = comp.Latitude.Float64 / math.Pi * 180
+		comp.Longitude.Float64 = comp.Longitude.Float64 / math.Pi * 180
 		compsSlice = append(compsSlice, comp)
 	}
 
@@ -390,6 +395,28 @@ func SearchForCompanies(c *gin.Context) {
 // parameter x is #stores currently found
 func increaseDistance(x int) float64 {
 	return 1 + (2 / (math.Exp(float64(x))))
+}
+
+// haversin(θ) function
+func hsin(theta float64) float64 {
+	return math.Pow(math.Sin(theta/2), 2)
+}
+
+// calculates distance in kilometers between two coordinates (in degrees)
+func distance(lat1, lon1, lat2, lon2 float64) float64 {
+	// convert to radians
+	// must cast radius as float to multiply later
+	var la1, lo1, la2, lo2, r float64
+	la1 = lat1 * math.Pi / 180
+	lo1 = lon1 * math.Pi / 180
+	la2 = lat2 * math.Pi / 180
+	lo2 = lon2 * math.Pi / 180
+
+	r = 6378.1
+
+	h := hsin(la2-la1) + math.Cos(la1)*math.Cos(la2)*hsin(lo2-lo1)
+
+	return 2 * r * math.Asin(math.Sqrt(h))
 }
 
 // AuthGetCompany godoc

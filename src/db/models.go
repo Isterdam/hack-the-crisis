@@ -47,6 +47,7 @@ type CompanyPublic struct {
 	Email      null.String `db:"email" json:"-"`
 	Password   null.String `db:"password" json:"-"`
 	CEmail     null.String `db:"contact_email" json:"-"`
+	DistToUser null.Float  `db:"-" json:"dist_to_user"`
 }
 
 type Booking struct {
