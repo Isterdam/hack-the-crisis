@@ -3,9 +3,9 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"math"
 	"math/rand"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -29,8 +29,10 @@ func AddCompany(c *gin.Context) {
 
 	fmt.Printf("%#v", comp)
 	if err != nil {
-		fmt.Printf("hello2 %s", err)
-		return
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "Company body could not be parsed correctly!",
+			"error":   err.Error(),
+		})
 	}
 
 	if len(comp.Password.String) < 8 {
@@ -41,7 +43,10 @@ func AddCompany(c *gin.Context) {
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(comp.Password.String), bcrypt.MinCost)
 	if err != nil {
-		log.Println(err)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "Could not generate hash for password!",
+			"error":   err.Error(),
+		})
 	}
 
 	comp.Password.String = string(hash)
@@ -84,14 +89,17 @@ func ConfirmCompany(c *gin.Context) {
 	dbbb := dbb.(*db.DB)
 
 	if ConfirmedCompanies[code].Email.String == "" {
-		fmt.Println("Company does not exist!")
-		return
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": "The company does not exist yet!",
+		})
 	} else {
 		// add company verified = true here?
 		err := db.InsertCompany(dbbb, ConfirmedCompanies[code])
 		if err != nil {
-			fmt.Println(err)
-			return
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"message": "Company could not be inserted into database!",
+				"error":   err.Error(),
+			})
 		}
 		delete(ConfirmedCompanies, code)
 		c.JSON(200, gin.H{
@@ -113,9 +121,11 @@ func GetCompany(c *gin.Context) {
 	dbbb := dbb.(*db.DB)
 
 	comp, err := db.GetCompaniesVerifiedPublic(dbbb)
-
 	if err != nil {
-		fmt.Println(err)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "Could not get companies from database!",
+			"error":   err.Error(),
+		})
 	}
 
 	c.JSON(200, comp)
@@ -139,16 +149,20 @@ func UpdateCompany(c *gin.Context) {
 	err := json.NewDecoder(c.Request.Body).Decode(&comp)
 
 	if err != nil {
-		fmt.Printf("%s\n", err)
-		return
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "Company body could not be parsed correctly!",
+			"error":   err.Error(),
+		})
 	}
 
 	var newComp db.Company
 	newComp, err = db.UpdateCompany(dbbb, comp)
 
 	if err != nil {
-		fmt.Printf("%s\n", err)
-		return
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "Could not update the company!",
+			"error":   err.Error(),
+		})
 	}
 
 	c.JSON(200, newComp)
@@ -172,8 +186,10 @@ func AddSlots(c *gin.Context) {
 	var slots []db.Slot
 	err := json.NewDecoder(c.Request.Body).Decode(&slots)
 	if err != nil {
-		fmt.Println(err)
-		return
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "Could not parse array of slots in body correctly!",
+			"error":   err.Error(),
+		})
 	}
 
 	for _, slot := range slots {
@@ -189,7 +205,6 @@ func AddSlots(c *gin.Context) {
 // @Success 200 {array} db.Slot
 // @Router /company/slots [get]
 func GetSlots(c *gin.Context) {
-
 	dbb, exist := c.Get("db")
 	if !exist {
 		return
@@ -205,7 +220,10 @@ func GetSlots(c *gin.Context) {
 	slots, err := db.GetSlotsByCompany(dbbb, id.(int))
 
 	if err != nil {
-		fmt.Println(err)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "Could not get slots from database!",
+			"error":   err.Error(),
+		})
 	}
 	c.JSON(200, slots)
 }
@@ -218,7 +236,6 @@ func GetSlots(c *gin.Context) {
 // @Success 200 {object} db.Slot
 // @Router /company/slots [patch]
 func UpdateSlot(c *gin.Context) {
-
 	dbb, exist := c.Get("db")
 	if !exist {
 		return
@@ -228,15 +245,19 @@ func UpdateSlot(c *gin.Context) {
 	var slot db.Slot
 	err := json.NewDecoder(c.Request.Body).Decode(&slot)
 	if err != nil {
-		fmt.Println(err)
-		return
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "Slot body could not be parsed correctly!",
+			"error":   err.Error(),
+		})
 	}
 
 	var newSlot db.Slot
 	newSlot, err = db.UpdateSlot(dbbb, slot)
 	if err != nil {
-		fmt.Println(err)
-		return
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "Could not update slot in database!",
+			"error":   err.Error(),
+		})
 	}
 
 	c.JSON(200, newSlot)
@@ -259,15 +280,19 @@ func GetSlot(c *gin.Context) {
 	var slot db.Slot
 	err := json.NewDecoder(c.Request.Body).Decode(&slot)
 	if err != nil {
-		fmt.Println(err)
-		return
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "Slot body could not be parsed correctly!",
+			"error":   err.Error(),
+		})
 	}
 
 	var newSlot db.Slot
 	newSlot, err = db.GetSlot(dbbb, int(slot.ID.Int64))
 	if err != nil {
-		fmt.Println(err)
-		return
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "Could not get slot from database!",
+			"error":   err.Error(),
+		})
 	}
 
 	c.JSON(200, newSlot)
@@ -285,10 +310,10 @@ func GetCompanyDistance(c *gin.Context) {
 	err := json.NewDecoder(c.Request.Body).Decode(&dist)
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(404, gin.H{
-			"message": "Page not found",
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "Distance body could not be parsed correctly!",
+			"error":   err.Error(),
 		})
-		return
 	}
 
 	dist.Latitude = dist.Latitude / 180 * math.Pi
@@ -320,7 +345,10 @@ func GetCompanyDistance(c *gin.Context) {
 	}
 
 	if err != nil {
-		return
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "Could not get companies from database!",
+			"error":   err.Error(),
+		})
 	}
 
 	c.JSON(200, comps)
@@ -342,8 +370,18 @@ func SearchForCompanies(c *gin.Context) {
 
 	var dist db.Distance
 
-	lon, _ := strconv.ParseFloat(c.Param("lon"), 64)
-	lat, _ := strconv.ParseFloat(c.Param("lat"), 64)
+	lon, err := strconv.ParseFloat(c.Param("lon"), 64)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "Could not parse longitude as float correctly!",
+			"error":   err.Error(),
+		})
+	}
+	lat, err := strconv.ParseFloat(c.Param("lat"), 64)
+	c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+		"message": "Could not parse latitude as float correctly!",
+		"error":   err.Error(),
+	})
 
 	dist.Latitude = lat / 180 * math.Pi
 	dist.Longitude = lon / 180 * math.Pi
@@ -369,8 +407,10 @@ func SearchForCompanies(c *gin.Context) {
 
 		compsAppend, err := db.GetCompaniesWithinDistance(dbbb, dist)
 		if err != nil {
-			fmt.Println(err)
-			return
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"message": "Could not get companies from database!",
+				"error":   err.Error(),
+			})
 		}
 
 		for _, comp := range compsAppend {
@@ -441,8 +481,10 @@ func AuthGetCompany(c *gin.Context) {
 
 	comp, err := db.GetCompanyByIDNoPass(dbbb, ID.(int))
 	if err != nil {
-		fmt.Println(err)
-		return
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "Could not get company from database!",
+			"error":   err.Error(),
+		})
 	}
 
 	c.JSON(200, comp)
@@ -464,8 +506,10 @@ func VerifyCode(c *gin.Context) {
 	var comp db.Company
 	err := json.NewDecoder(c.Request.Body).Decode(&comp)
 	if err != nil {
-		fmt.Println(err)
-		return
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "Company body could not be parsed correctly!",
+			"error":   err.Error(),
+		})
 	}
 
 	loggedInCompanyID := int(comp.ID.Int64)
@@ -478,14 +522,18 @@ func VerifyCode(c *gin.Context) {
 
 	booking, err := db.GetBooking(dbbb, code)
 	if err != nil {
-		fmt.Println(err)
-		return
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "Could not get booking from database!",
+			"error":   err.Error(),
+		})
 	}
 
 	slot, err := db.GetSlot(dbbb, int(booking.SlotID.Int64))
 	if err != nil {
-		fmt.Println(err)
-		return
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "Could not get slot from database!",
+			"error":   err.Error(),
+		})
 	}
 
 	bookingCompanyID := int(slot.CompanyID.Int64)
@@ -496,7 +544,7 @@ func VerifyCode(c *gin.Context) {
 			"message": "Ticket verified!",
 		})
 	} else {
-		c.JSON(401, gin.H{
+		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Ticket was not verified!",
 		})
 	}
