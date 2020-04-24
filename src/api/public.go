@@ -92,13 +92,9 @@ func BookTime(c *gin.Context) {
 	timeStart := timeSlot.StartTime.Time
 	timeStop := timeSlot.EndTime.Time
 
-	var timeStr string
-	timeStr = timeStart.Format("15:04") + "-" + timeStop.Format("15:04")
+	confirmation := "Hello " + booking.FirstName.String + "!\n\n" + "Please confirm your booking at " + store.Name.String + " from " + timeStart.Format("15:04") + " to " + timeStop.Format("15:04") + " and get your ticket in the link below:\n\n" + url
 
-	confirmation := "Hej " + booking.FirstName.String + "!\n\n" + "Vänligen bekräfta din bokning på " + store.Name.String + " klockan " + timeStr + " och hämta sedan din biljett genom länken nedan:\n\n" + url
-
-	fmt.Println(confirmation)
-	// go Send_text(c, booking.PhoneNumber.String, confirmation)
+	go Send_text(c, booking.PhoneNumber.String, confirmation)
 
 	c.JSON(200, gin.H{
 		"message": "Booking was successful",
