@@ -32,6 +32,12 @@ func AddCompany(c *gin.Context) {
 		return
 	}
 
+	if len(comp.Password.String) < 8 {
+		c.AbortWithStatusJSON(400, gin.H{
+			"error": "Password too short",
+		})
+	}
+
 	hash, err := bcrypt.GenerateFromPassword([]byte(comp.Password.String), bcrypt.MinCost)
 	if err != nil {
 		log.Println(err)
