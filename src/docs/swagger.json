@@ -566,6 +566,9 @@
                 "country": {
                     "type": "string"
                 },
+                "dist_to_user": {
+                    "type": "number"
+                },
                 "id": {
                     "type": "integer"
                 },
