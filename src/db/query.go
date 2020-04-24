@@ -20,9 +20,9 @@ var queries = []KVP{
 	KVP{K: "company/login", V: "SELECT * FROM company WHERE lower(email)=lower($1)"},
 	KVP{K: "company/slot/get", V: "SELECT * FROM slots WHERE id=$1"},
 	KVP{K: "company/distance", V: "SELECT * FROM company WHERE (lat >= $1 AND lat <= $2) AND (lon >= $3 AND lon <= $4) AND acos(sin($5) * sin(lat) + cos($5) * cos(lat) * cos(lon - $6)) <= $7"},
-	KVP{K: "company/slot/getAll", V: "SELECT * FROM slots WHERE company_id=$1"},
+	KVP{K: "company/slot/getAll", V: "SELECT * FROM slots WHERE company_id=$1 ORDER BY start_time"},
 	KVP{K: "company/slot/update", V: "UPDATE slots SET start_time=$2, end_time=$3, max=$4 WHERE id=$1 RETURNING *"},
 	KVP{K: "company/slot/add", V: "INSERT INTO slots (id, company_id, start_time, end_time, max) VALUES (DEFAULT, $1, $2, $3, $4)"},
-	KVP{K: "company/slot/get/betweenTime", V: "select * from slots where start_time between $1 AND $2 AND company_id = $3"},
+	KVP{K: "company/slot/get/betweenTime", V: "select * from slots where start_time between $1 AND $2 AND company_id = $3 ORDER BY start_time"},
 	KVP{K: "company/get/verified", V: "SELECT * FROM COMPANY WHERE verified=true"},
 }
