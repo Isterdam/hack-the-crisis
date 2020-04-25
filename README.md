@@ -9,8 +9,6 @@ Our contribution to the 2020 hackathons "Hack the Crisis - Sweden" and "#EUvsVir
 | Hack the Crisis - Sweden | Save lives - Digital solution | 123 | 4th |
 | #EUvsVirus | Business continuity - New and resilient business models | TBD | TBD |
 
-Finished 4th out of 123 submissions in the category "Save lives - Digital solution" in Hack the Crisis - Sweden
-
 Frontend can be found [here](https://github.com/CreatlV/hack-the-crisis-frontend)
 
 ### Why?
