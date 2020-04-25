@@ -141,7 +141,9 @@ func ConfirmBookAndGetTicket(c *gin.Context) {
 		// booking exists but has not yet been added to database
 		db.InsertBooking(dbbb, ConfirmedBookings[code])
 		booking, _ = db.GetBooking(dbbb, code)
-		c.JSON(200, booking)
+		c.JSON(200, gin.H{
+			"message": "Ticket confirmed!",
+		})
 		delete(ConfirmedBookings, code) // delete entry from map
 	}
 }
