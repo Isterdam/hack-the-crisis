@@ -136,13 +136,17 @@ func ConfirmBookAndGetTicket(c *gin.Context) {
 		return
 	} else if ConfirmedBookings[code].PhoneNumber.String == "" && booking.PhoneNumber.String != "" {
 		// booking exists and has been added to database
-		c.JSON(200, booking)
+		c.JSON(200, gin.H{
+			"message": "Ticket already confirmed!",
+			"data":    booking,
+		})
 	} else {
 		// booking exists but has not yet been added to database
 		db.InsertBooking(dbbb, ConfirmedBookings[code])
 		booking, _ = db.GetBooking(dbbb, code)
 		c.JSON(200, gin.H{
 			"message": "Ticket confirmed!",
+			"data":    booking,
 		})
 		delete(ConfirmedBookings, code) // delete entry from map
 	}
