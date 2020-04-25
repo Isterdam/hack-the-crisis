@@ -2,8 +2,8 @@ package db
 
 import (
 	"fmt"
+	"time"
 
-	"github.com/jmoiron/sqlx"
 	null "gopkg.in/guregu/null.v3"
 )
 
@@ -96,87 +96,22 @@ func GetCompaniesWithinDistance(db *DB, dist Distance) ([]CompanyPublic, error) 
 	return comps, err
 }
 
-func GetCompaniesAvailability(db *DB, compIDs []int, week int) ([]Availabilty, error) {
-	query := `SELECT coalesce(company_id, crossp.id::int) as comp_id, coalesce(day, crossp.d) as dow, coalesce( sum(booked) / sum(max) ::float, 0) as avg
-	FROM 
-	(
-		SELECT company_id, date_part('dow', start_time) as day, max, booked from slots s
-		LEFT JOIN bookings b ON s.id=slot_id
-		WHERE company_id IN (?) AND date_part('week', start_time) = (?)
-		GROUP BY company_id, start_time, max, booked
-	) t 
-	RIGHT JOIN (
-		SELECT a.d, c.id 
-		FROM company c
-		CROSS JOIN ( VALUES (1), (2), (3), (4), (5), (6), (0)) a (d)
-		WHERE c.id IN (?)
-	) crossp ON crossp.d=t.day AND crossp.id::int=t.company_id::int
-	GROUP BY comp_id, dow
-	ORDER BY comp_id`
+func GetCompanyAverageAvailability(db *DB, compID int, startTime time.Time, days int) ([]float64, error) {
+	stmt := db.prepared["company/get/avgAvailability"]
 
-	query, args, err := sqlx.In(query, compIDs, week, compIDs)
+	av := []float64{}
 
-	query = db.DB.Rebind(query)
+	err := stmt.Select(&av, compID, startTime, days)
 
-	stmt, err := db.DB.Preparex(query)
+	return av, err
+}
 
-	res := []struct {
-		CompanyID null.Int   `db:"comp_id"`
-		DayOfWeek null.Int   `db:"dow"`
-		Average   null.Float `db:"avg"`
-	}{} //, len(compIDs)*7) //[]CompanyAvailabilityAverage{}
+func GetCompanySlotAvailability(db *DB, compID int, startTime time.Time, days int) ([]int, error) {
+	stmt := db.prepared["company/get/slotAvailability"]
 
-	err = stmt.Select(&res, args...)
+	av := []int{}
 
-	query = `SELECT coalesce(t.company_id, crossp.id::int) as comp_id, coalesce(t.dow, crossp.d) as dow, coalesce(t.count, 0) as count
-	FROM 
-	(
-		SELECT company_id, date_part('dow', start_time) as dow, count(id) as count from slots s
-		WHERE company_id IN (?) 
-		AND booked < max
-		AND date_part('week', start_time) = (?)
-		GROUP BY company_id, dow
-	) t
-	RIGHT JOIN (
-		SELECT a.d, c.id 
-		FROM company c
-		CROSS JOIN ( VALUES (1), (2), (3), (4), (5), (6), (0)) a (d)
-		WHERE c.id IN (?)
-	) crossp ON crossp.d=t.dow AND crossp.id=t.company_id
-	ORDER BY comp_id, dow`
-
-	query, args, err = sqlx.In(query, compIDs, week, compIDs)
-
-	query = db.DB.Rebind(query)
-
-	stmt, err = db.DB.Preparex(query)
-
-	ress := []struct {
-		CompanyID null.Int `db:"comp_id"`
-		DayOfWeek null.Int `db:"dow"`
-		Count     null.Int `db:"count"`
-	}{}
-
-	err = stmt.Select(&ress, args...)
-
-	av := make([]Availabilty, len(compIDs))
-
-	count := 0
-
-	for i := range av {
-		av[i].CompanyID = int(res[count].CompanyID.Int64)
-		av[i].DailyAvailable = make([]float64, 7)
-		av[i].AvailableSlots = make([]int, 7)
-		for j := 0; j < 7; j++ {
-			day := res[count].DayOfWeek.Int64 - 1
-			if day == -1 {
-				day = 6
-			}
-			av[i].DailyAvailable[day] = res[count].Average.Float64
-			av[i].AvailableSlots[day] = int(ress[count].Count.Int64)
-			count++
-		}
-	}
+	err := stmt.Select(&av, compID, startTime, days)
 
 	return av, err
 }
