@@ -211,11 +211,12 @@ func GetSlotLoad(c *gin.Context) {
 }
 
 func GetCompanyAvailability(c *gin.Context) {
-	weekStr := c.Param("week")
-	week, _ := strconv.Atoi(weekStr)
-
-	var compIDs []int
-	err := json.NewDecoder(c.Request.Body).Decode(&compIDs)
+	var req struct {
+		CompanyIDs []int     `json:"company_ids"`
+		StartTime  time.Time `json:"start_time"`
+		Days       int       `json:"days"`
+	}
+	err := json.NewDecoder(c.Request.Body).Decode(&req)
 
 	if err != nil {
 		return
@@ -226,7 +227,41 @@ func GetCompanyAvailability(c *gin.Context) {
 	}
 	dbbb := dbb.(*db.DB)
 
-	av, err := db.GetCompaniesAvailability(dbbb, compIDs, week)
+	av := make([]db.Availabilty, len(req.CompanyIDs))
 
-	c.JSON(200, av)
+	for i := range req.CompanyIDs {
+		_, err := db.GetCompanyByID(dbbb, req.CompanyIDs[i])
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Company does not exist",
+			})
+			return
+		}
+
+		ret, err := db.GetCompanyAverageAvailability(dbbb, req.CompanyIDs[i], req.StartTime, req.Days)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Company does not exist",
+			})
+			return
+		}
+
+		av[i].DailyAvailable = ret
+		av[i].CompanyID = req.CompanyIDs[i]
+
+		rett, err := db.GetCompanySlotAvailability(dbbb, req.CompanyIDs[i], req.StartTime, req.Days)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Company does not exist",
+			})
+			return
+		}
+
+		av[i].AvailableSlots = rett
+	}
+
+	c.JSON(200, gin.H{
+		"data": av,
+	})
 }
