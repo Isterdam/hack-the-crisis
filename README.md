@@ -7,7 +7,7 @@ Our contribution to the 2020 hackathons "Hack the Crisis - Sweden" and "#EUvsVir
 | Hackathon | Category | Submissions in category | ShopAlone ranking in category |
 |:---------:|:--------:|:-----------------------:|:-----------------------------:|
 | Hack the Crisis - Sweden | Save lives - Digital solution | 123 | [4th](https://www.guaana.com/challenges/PAScgtXfAYDsaqjtp/results/zMRLepRnXNxoChj5x) |
-| #EUvsVirus | Business continuity - New and resilient business models | TBD | TBD |
+| #EUvsVirus | Business continuity - New and resilient business models | TBD | [TBD](https://devpost.com/software/shopalone-exf4jy) |
 
 Frontend can be found [here](https://github.com/CreatlV/hack-the-crisis-frontend)
 
