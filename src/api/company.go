@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/Isterdam/hack-the-crisis-backend/src/db"
+	"github.com/Isterdam/hack-the-crisis-backend/src/tz"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	null "gopkg.in/guregu/null.v3"
@@ -538,7 +539,15 @@ func VerifyCode(c *gin.Context) {
 
 	bookingCompanyID := int(slot.CompanyID.Int64)
 
-	validTime := time.Now().After(slot.StartTime.Time) && time.Now().Before(slot.EndTime.Time)
+	loc, err := time.LoadLocation(tz.GetCountry(comp.Country.String).Zones[0].Name)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Could not find the location for time zone!",
+		})
+	}
+	t := time.Now().In(loc)
+
+	validTime := t.After(slot.StartTime.Time) && t.Before(slot.EndTime.Time)
 	if loggedInCompanyID == bookingCompanyID && validTime {
 		c.JSON(200, gin.H{
 			"message": "Ticket verified!",
