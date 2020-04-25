@@ -2,7 +2,7 @@
 
 ## Team "KLundliga tekniska högskolan" - ShopAlone
 
-Our contribution to the 2020 hackathons "Hack the Crisis - Sweden" and "#EUvsVirus" amidst the Corona outbreak, to ease the Corona outbreak
+Our contribution to the 2020 hackathons "Hack the Crisis - Sweden" and "#EUvsVirus" amidst the coronavirus pandemic, to ease the coronavirus pandemic
 
 | Hackathon | Category | Submissions in category | ShopAlone ranking in category |
 |:---------:|:--------:|:-----------------------:|:-----------------------------:|
