@@ -3235,8 +3235,8 @@ func GetCountries() []Country {
 }
 
 // GetCountry returns a single Country that matches the country
-// name passed and whether it was found
-func GetCountry(name string) (c Country, found bool) {
-	c, found = mapped[name]
+// name passed
+func GetCountry(name string) (c Country) {
+	c = mapped[name]
 	return
 }

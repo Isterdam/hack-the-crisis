@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/Isterdam/hack-the-crisis-backend/src/db"
+	"github.com/Isterdam/hack-the-crisis-backend/src/tz"
 	"github.com/gin-gonic/gin"
 	null "gopkg.in/guregu/null.v3"
 
@@ -89,7 +90,8 @@ func BookTime(c *gin.Context) {
 	timeSlot, _ := db.GetSlot(dbbb, int(booking.SlotID.Int64))
 	store, _ := db.GetCompanyByID(dbbb, int(timeSlot.CompanyID.Int64))
 
-	loc, err := time.LoadLocation("Europe/Stockholm")
+	// only gets the zeroth element of zone list (because European countries only have single time zones)
+	loc, err := time.LoadLocation(tz.GetCountry(store.Country.String).Zones[0].Name)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Could not find the location for time zone!",
