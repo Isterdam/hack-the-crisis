@@ -8,6 +8,7 @@ import (
 	"github.com/Isterdam/hack-the-crisis-backend/src/db"
 	_ "github.com/Isterdam/hack-the-crisis-backend/src/docs"
 	"github.com/Isterdam/hack-the-crisis-backend/src/handlers"
+	"github.com/Isterdam/hack-the-crisis-backend/src/tz"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
@@ -49,6 +50,7 @@ func main() {
 	// localhost:8080/swagger/index.html to access documentation
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
+	tz.InitTimeZones()
 	api.InitializeCache()
 	handlers.InitPublicRoutes(r)
 	handlers.InitCompanyRoutes(r)

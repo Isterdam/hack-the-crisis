@@ -89,8 +89,14 @@ func BookTime(c *gin.Context) {
 	timeSlot, _ := db.GetSlot(dbbb, int(booking.SlotID.Int64))
 	store, _ := db.GetCompanyByID(dbbb, int(timeSlot.CompanyID.Int64))
 
-	timeStart := timeSlot.StartTime.Time
-	timeStop := timeSlot.EndTime.Time
+	loc, err := time.LoadLocation("Europe/Stockholm")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Could not find the location for time zone!",
+		})
+	}
+	timeStart := timeSlot.StartTime.Time.In(loc)
+	timeStop := timeSlot.EndTime.Time.In(loc)
 
 	confirmation := "Hello " + booking.FirstName.String + "!\n\n" + "Please confirm your booking at " + store.Name.String + " from " + timeStart.Format("15:04") + " to " + timeStop.Format("15:04") + " and get your ticket in the link below:\n\n" + url
 
