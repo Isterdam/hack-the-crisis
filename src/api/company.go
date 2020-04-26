@@ -61,6 +61,9 @@ func AddCompany(c *gin.Context) {
 		"ö", "o")
 	code = r.Replace(code)
 	ConfirmedCompanies[code] = comp
+	for i, d := range ConfirmedCompanies {
+		fmt.Printf("%#v %#v", i, d)
+	}
 
 	url := "www.shopalone.se" + c.Request.URL.Path + "/confirm/" + code
 	msg := "Hello " + comp.Name.String + "!\n\n" + "Please confirm your email at ShopAlone in the link below:\n\n" + url
@@ -91,6 +94,11 @@ func ConfirmCompany(c *gin.Context) {
 		return
 	}
 	dbbb := dbb.(*db.DB)
+	fmt.Println(code)
+	for i, d := range ConfirmedCompanies {
+		fmt.Printf("%#v %#v", i, d)
+	}
+	//fmt.Printf("%#v\n", ConfirmedCompanies[code])
 
 	if ConfirmedCompanies[code].Email.String == "" {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
@@ -183,9 +191,22 @@ func AddSlots(c *gin.Context) {
 
 	dbb, exist := c.Get("db")
 	if !exist {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"message": "Database does not exist!",
+			"error":   "db not found",
+		})
 		return
 	}
 	dbbb := dbb.(*db.DB)
+
+	id, exist := c.Get("id")
+	if !exist {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"message": "Unauthorized",
+			"error":   "id not found",
+		})
+		return
+	}
 
 	var slots []db.Slot
 	err := json.NewDecoder(c.Request.Body).Decode(&slots)
@@ -194,11 +215,24 @@ func AddSlots(c *gin.Context) {
 			"message": "Could not parse array of slots in body correctly!",
 			"error":   err.Error(),
 		})
+		return
 	}
 
 	for _, slot := range slots {
-		db.AddSlot(dbbb, slot)
+		slot.CompanyID = null.IntFrom(int64(id.(int)))
+		err := db.AddSlot(dbbb, slot)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"message": "Something went wrong!",
+				"error":   err.Error(),
+			})
+			return
+		}
 	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Success",
+	})
 }
 
 // GetSlots godoc
