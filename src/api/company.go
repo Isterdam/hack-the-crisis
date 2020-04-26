@@ -67,6 +67,9 @@ func AddCompany(c *gin.Context) {
 
 	// slow af so parallellize that shit
 	go SendMail(comp.Email.String, "Confirm your email at ShopAlone", msg)
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Success",
+	})
 }
 
 func generateVerifyingCode(company db.Company) string {
