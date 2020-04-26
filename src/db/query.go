@@ -25,7 +25,7 @@ var queries = []KVP{
 	KVP{K: "company/slot/add", V: "INSERT INTO slots (id, company_id, start_time, end_time, max) VALUES (DEFAULT, $1, $2, $3, $4)"},
 	KVP{K: "company/slot/get/betweenTime", V: "select * from slots where start_time between $1 AND $2 AND company_id = $3 ORDER BY start_time"},
 	KVP{K: "company/get/verified", V: "SELECT * FROM COMPANY WHERE verified=true"},
-	KVP{K: "company/get/avgAvailability", V: `SELECT coalesce(sum(booked) / sum(max)::float, 0)  as avg
+	KVP{K: "company/get/avgAvailability", V: `SELECT coalesce((sum(max) - sum(booked)) / sum(max)::float, 0)  as avg
 										        FROM generate_series($2::timestamp, ($2::date + $3::integer)::timestamp, '1 day') t(day)
 												LEFT JOIN slots s ON s.start_time::date=t.day::date AND s.company_id=$1
 												GROUP BY t.day::date

@@ -71,8 +71,8 @@ FROM generate_series(current_timestamp, current_timestamp + '7 day', '1 day') t(
 LEFT JOIN slots s ON s.start_time::date=t.day::date AND s.company_id=71
 GROUP BY s.company_id, t.day::date;
 
-SELECT t.day::date, s.id  as avg
+SELECT count(s.id)  as avg
 FROM generate_series(current_timestamp, current_timestamp + '30 day', '1 day') t(day)
 LEFT JOIN slots s ON s.start_time::date=t.day::date AND s.company_id=71 AND s.booked < s.max
-GROUP BY s.company_id, t.day::date
+GROUP BY t.day::date
 ORDER BY t.day::date
