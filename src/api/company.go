@@ -382,11 +382,12 @@ func SearchForCompanies(c *gin.Context) {
 		})
 	}
 	lat, err := strconv.ParseFloat(c.Param("lat"), 64)
-	c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-		"message": "Could not parse latitude as float correctly!",
-		"error":   err.Error(),
-	})
-
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "Could not parse latitude as float correctly!",
+			"error":   err.Error(),
+		})
+	}
 	dist.Latitude = lat / 180 * math.Pi
 	dist.Longitude = lon / 180 * math.Pi
 
