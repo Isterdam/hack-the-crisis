@@ -430,9 +430,6 @@ func SearchForCompanies(c *gin.Context) {
 	comps = make(map[string]db.CompanyPublic)
 
 	for i := 0; i < 6; i++ {
-		if len(comps) >= 10 {
-			break
-		}
 		dist.R = float64(dist.Distance) / 6371
 
 		r := dist.R
@@ -454,6 +451,9 @@ func SearchForCompanies(c *gin.Context) {
 
 		for _, comp := range compsAppend {
 			comp.DistToUser = null.FloatFrom(distance(dist.Latitude*(180/math.Pi), dist.Longitude*(180/math.Pi), float64(comp.Latitude.Float64)*(180/math.Pi), float64(comp.Longitude.Float64)*(180/math.Pi)))
+			if len(comps) == 10 {
+				break
+			}
 			comps[comp.Name.String] = comp
 		}
 
