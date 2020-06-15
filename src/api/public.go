@@ -1,6 +1,7 @@
 package api
 
 import (
+	"database/sql"
 	"net/http"
 
 	"github.com/Isterdam/hack-the-crisis-backend/src/db"
@@ -87,8 +88,19 @@ func BookTime(c *gin.Context) {
 	}
 	dbbb := dbb.(*db.DB)
 
-	timeSlot, _ := db.GetSlot(dbbb, int(booking.SlotID.Int64))
-	store, _ := db.GetCompanyByID(dbbb, int(timeSlot.CompanyID.Int64))
+	timeSlot, err := db.GetSlot(dbbb, int(booking.SlotID.Int64))
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Something went wrong!",
+		})
+	}
+	store, err := db.GetCompanyByID(dbbb, int(timeSlot.CompanyID.Int64))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Something went wrong!",
+		})
+	}
 
 	// only gets the zeroth element of zone list (because European countries only have single time zones)
 	loc, err := time.LoadLocation(tz.GetCountry(store.Country.String).Zones[0].Name)
@@ -120,6 +132,8 @@ func generateTicketCode(booking db.Booking) string {
 // @Param code path string true "Code"
 // @Router /book/confirm/{code} [post]
 func ConfirmBookAndGetTicket(c *gin.Context) {
+	var bookingExists bool
+
 	code := c.Param("code")
 
 	dbb, exist := c.Get("db")
@@ -128,13 +142,28 @@ func ConfirmBookAndGetTicket(c *gin.Context) {
 	}
 	dbbb := dbb.(*db.DB)
 
-	booking, _ := db.GetBooking(dbbb, code)
+	booking, err := db.GetBooking(dbbb, code)
 
-	if ConfirmedBookings[code].PhoneNumber.String == "" && booking.PhoneNumber.String == "" {
+	if err != nil {
+		if err == sql.ErrNoRows {
+			bookingExists = false
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Something went wrong",
+			})
+			return
+		}
+	} else {
+		bookingExists = true
+	}
+
+	if ConfirmedBookings[code].PhoneNumber.String == "" && !bookingExists {
 		// booking does not exist
-		fmt.Println("Booking does not exist!")
+		c.JSON(200, gin.H{
+			"message": "This booking does not exist.",
+		})
 		return
-	} else if ConfirmedBookings[code].PhoneNumber.String == "" && booking.PhoneNumber.String != "" {
+	} else if ConfirmedBookings[code].PhoneNumber.String == "" && bookingExists {
 		// booking exists and has been added to database
 		c.JSON(200, gin.H{
 			"message": "Ticket already confirmed!",
@@ -142,8 +171,24 @@ func ConfirmBookAndGetTicket(c *gin.Context) {
 		})
 	} else {
 		// booking exists but has not yet been added to database
-		db.InsertBooking(dbbb, ConfirmedBookings[code])
-		booking, _ = db.GetBooking(dbbb, code)
+		err := db.InsertBooking(dbbb, ConfirmedBookings[code])
+
+		fmt.Println(err)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Something went wrong",
+			})
+			return
+		}
+
+		booking, err = db.GetBooking(dbbb, code)
+		fmt.Println(err)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Something went wrong",
+			})
+			return
+		}
 		c.JSON(200, gin.H{
 			"message": "Ticket confirmed!",
 			"data":    booking,
