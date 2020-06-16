@@ -1,5 +1,7 @@
 package db
 
+import "database/sql"
+
 // reee ingen inbyggd insert-funktion
 func InsertBooking(db *DB, book Booking) error {
 	stmt := db.prepared["book/add"]
@@ -29,4 +31,24 @@ func GetBookingsBySlotID(db *DB, slotID int) ([]Booking, error) {
 	err := stmt.Select(&bookings, slotID)
 
 	return bookings, err
+}
+
+func GetBookingsByCompanyID(db *DB, slotID int) ([]Booking, error) {
+	stmt := db.prepared["booking/getByCompanyID"]
+	bookings := []Booking{}
+	err := stmt.Select(&bookings, slotID)
+
+	return bookings, err
+}
+
+func UpdateBookingStatus(db *DB, companyID int, bookingID int, status string) ([]Booking, error) {
+	stmt := db.prepared["booking/update/status"]
+	booking := []Booking{}
+	err := stmt.Get(&booking, companyID, bookingID, status)
+
+	if err == sql.ErrNoRows {
+		return booking, nil
+	}
+
+	return booking, err
 }

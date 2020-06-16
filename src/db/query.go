@@ -11,7 +11,7 @@ var queries = []KVP{
 	KVP{K: "book/add", V: "INSERT INTO bookings (id, slot_id, phone_number, code, first_name, last_name, visitee, message, status) VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8)"},
 	KVP{K: "book/get", V: "SELECT * FROM bookings WHERE code=$1"},
 	KVP{K: "book/remove", V: "DELETE FROM bookings WHERE code=$1"},
-	KVP{K: "booking/getByCompany", V: "SELECT * FROM bookings b JOIN slots s ON s.id=b.slot_id WHERE s.company_id=$1"},
+	KVP{K: "booking/getByCompanyID", V: "SELECT * FROM bookings b JOIN slots s ON s.id=b.slot_id WHERE s.company_id=$1"},
 	KVP{K: "booking/getBySlotID", V: "SELECT * FROM bookings WHERE slot_id=$1"},
 	KVP{K: "company/insert", V: "INSERT INTO company (id, name, adress, city, country, post_code, contact_firstname, contact_number, contact_lastname, verified, email, password, lon, lat, contact_email) VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8, DEFAULT, lower($9), $10, $11, $12, lower($13))"},
 	KVP{K: "company/update/location", V: "UPDATE company SET name=$2, adress=$3, city=$4, country=$5, post_code=$6, lon=$7, lat=$8 WHERE id=$1 RETURNING *"},
@@ -35,4 +35,5 @@ var queries = []KVP{
 												LEFT JOIN slots s ON s.start_time::date=t.day::date AND s.company_id=$1 AND s.booked < s.max
 												GROUP BY t.day::date
 												ORDER BY t.day::date`},
+	KVP{K: "booking/update/status", V: "UPDATE bookings b SET status=$3 JOIN slots s ON b.slot_id=s.id WHERE id=$2 AND s.company_id=$1 RETURNING *"},
 }
