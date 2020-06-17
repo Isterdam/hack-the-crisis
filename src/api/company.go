@@ -598,23 +598,18 @@ func VerifyCode(c *gin.Context) {
 }
 
 func GetAllCompanyBookings(c *gin.Context) {
-	dbb, exist := c.Get("db")
-	if !exist {
-		return
-	}
+	dbb := c.MustGet("db")
+
 	dbbb := dbb.(*db.DB)
 
-	id, exist := c.Get("id")
-	if !exist {
-		return
-	}
+	id := c.MustGet("id")
 
 	var bookings []db.Booking
 	bookings, err := db.GetBookingsByCompanyID(dbbb, id.(int))
 
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"message": "Could not get slots from database!",
+			"message": "Could not get bookings from database!",
 			"error":   err.Error(),
 		})
 	}
