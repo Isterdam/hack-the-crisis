@@ -35,5 +35,5 @@ var queries = []KVP{
 												LEFT JOIN slots s ON s.start_time::date=t.day::date AND s.company_id=$1 AND s.booked < s.max
 												GROUP BY t.day::date
 												ORDER BY t.day::date`},
-	KVP{K: "booking/update/status", V: "UPDATE bookings b SET status=$3 JOIN slots s ON b.slot_id=s.id WHERE id=$2 AND s.company_id=$1 RETURNING *"},
+	KVP{K: "booking/update/status", V: "UPDATE bookings b SET status=$3 FROM slots s WHERE b.id=$2 AND s.company_id=$1 AND b.slot_id=s.id RETURNING b.*"},
 }

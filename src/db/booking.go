@@ -44,7 +44,7 @@ func GetBookingsByCompanyID(db *DB, slotID int) ([]Booking, error) {
 func UpdateBookingStatus(db *DB, companyID int, bookingID int, status string) ([]Booking, error) {
 	stmt := db.prepared["booking/update/status"]
 	booking := []Booking{}
-	err := stmt.Get(&booking, companyID, bookingID, status)
+	err := stmt.Select(&booking, companyID, bookingID, status)
 
 	if err == sql.ErrNoRows {
 		return booking, nil

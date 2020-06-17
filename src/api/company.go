@@ -636,18 +636,19 @@ func UpdateCompanyBookingStatus(c *gin.Context) {
 		return
 	}
 
-	dbb, exist := c.Get("db")
-	if !exist {
-		return
-	}
+	dbb := c.MustGet("db")
 	dbbb := dbb.(*db.DB)
 
-	id, exist := c.Get("id")
-	if !exist {
-		return
-	}
+	id := c.MustGet("id")
 
 	bookingID, err := strconv.Atoi(c.Param("bookingID"))
+
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid booking ID",
+		})
+		return
+	}
 
 	updatedBooking := []db.Booking{}
 	updatedBooking, err = db.UpdateBookingStatus(dbbb, id.(int), bookingID, req.Status)
@@ -656,16 +657,17 @@ func UpdateCompanyBookingStatus(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"error": "Internal Database Error",
 		})
+		return
 	}
 
 	if len(updatedBooking) == 0 {
 		c.JSON(http.StatusNotFound, gin.H{
-			"error": "This booking does not exist",
+			"message": "This booking does not exist",
 		})
 	} else {
 		c.JSON(http.StatusOK, gin.H{
-			"message": "Sucess",
-			"data":    updatedBooking,
+			"message": "Success",
+			"data":    updatedBooking[0], //The array will always contain only one booking
 		})
 	}
 
