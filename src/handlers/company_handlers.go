@@ -27,6 +27,9 @@ func InitCompanyRoutes(r *gin.Engine) {
 		auth.GET("/company/slots", api.GetSlots)
 		auth.PATCH("/company/slots", api.UpdateSlot)
 		auth.DELETE("/company/slots", api.DeleteSlots)
+
+		auth.GET("/company/booking", api.GetAllCompanyBookings)
+		auth.PATCH("/company/booking/:bookingID/status", api.UpdateCompanyBookingStatus)
 	}
 	// get specific slot
 	r.GET("/company/slots/id", api.GetSlot)

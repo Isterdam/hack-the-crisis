@@ -596,3 +596,77 @@ func VerifyCode(c *gin.Context) {
 		})
 	}
 }
+
+func GetAllCompanyBookings(c *gin.Context) {
+	dbb := c.MustGet("db")
+
+	dbbb := dbb.(*db.DB)
+
+	id := c.MustGet("id")
+
+	var bookings []db.Booking
+	bookings, err := db.GetBookingsByCompanyID(dbbb, id.(int))
+
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "Could not get bookings from database!",
+			"error":   err.Error(),
+		})
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Success",
+		"data":    bookings,
+	})
+
+}
+
+func UpdateCompanyBookingStatus(c *gin.Context) {
+	var req struct {
+		Status string
+	}
+
+	err := json.NewDecoder(c.Request.Body).Decode(&req)
+
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": "Invalid JSON",
+		})
+		return
+	}
+
+	dbb := c.MustGet("db")
+	dbbb := dbb.(*db.DB)
+
+	id := c.MustGet("id")
+
+	bookingID, err := strconv.Atoi(c.Param("bookingID"))
+
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid booking ID",
+		})
+		return
+	}
+
+	updatedBooking := []db.Booking{}
+	updatedBooking, err = db.UpdateBookingStatus(dbbb, id.(int), bookingID, req.Status)
+
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"error": "Internal Database Error",
+		})
+		return
+	}
+
+	if len(updatedBooking) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"message": "This booking does not exist",
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Success",
+			"data":    updatedBooking[0], //The array will always contain only one booking
+		})
+	}
+
+}

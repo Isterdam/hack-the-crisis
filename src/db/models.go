@@ -57,6 +57,9 @@ type Booking struct {
 	Code        null.String `db:"code" json:"code"`
 	FirstName   null.String `db:"first_name" json:"first_name"`
 	LastName    null.String `db:"last_name" json:"last_name"`
+	Visitee     null.String `db:"visitee" json:"visitee"`
+	Message     null.String `db:"message" json:"message"`
+	Status      null.String `db:"status" json:"status"`
 }
 
 type Distance struct {
