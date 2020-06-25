@@ -33,10 +33,10 @@ func GetBookingsBySlotID(db *DB, slotID int) ([]Booking, error) {
 	return bookings, err
 }
 
-func GetBookingsByCompanyID(db *DB, slotID int) ([]Booking, error) {
+func GetBookingsByCompanyID(db *DB, companyID int) ([]Booking, error) {
 	stmt := db.prepared["booking/getByCompanyID"]
 	bookings := []Booking{}
-	err := stmt.Select(&bookings, slotID)
+	err := stmt.Select(&bookings, companyID)
 
 	return bookings, err
 }

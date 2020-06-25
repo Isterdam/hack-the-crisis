@@ -613,7 +613,10 @@ func GetAllCompanyBookings(c *gin.Context) {
 			"error":   err.Error(),
 		})
 	}
-	c.JSON(http.StatusOK, bookings)
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Success",
+		"data":    bookings,
+	})
 
 }
 

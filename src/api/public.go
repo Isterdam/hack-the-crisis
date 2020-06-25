@@ -169,11 +169,11 @@ func ConfirmBookAndGetTicket(c *gin.Context) {
 			"message": "Ticket already confirmed!",
 			"data":    booking,
 		})
+		return
 	} else {
 		// booking exists but has not yet been added to database
 		err := db.InsertBooking(dbbb, ConfirmedBookings[code])
 
-		fmt.Println(err)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"message": "Something went wrong",
@@ -182,7 +182,6 @@ func ConfirmBookAndGetTicket(c *gin.Context) {
 		}
 
 		booking, err = db.GetBooking(dbbb, code)
-		fmt.Println(err)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"message": "Something went wrong",
