@@ -599,19 +599,42 @@ func VerifyCode(c *gin.Context) {
 
 func GetAllCompanyBookings(c *gin.Context) {
 	dbb := c.MustGet("db")
-
 	dbbb := dbb.(*db.DB)
-
 	id := c.MustGet("id")
 
+	startTime := c.Query("start")
+	endTime := c.Query("end")
+
+	start, err := time.Parse(time.RFC3339, startTime)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "The query for start time is not a valid timestamp!" +
+				" The correct layout is e.g 2020-06-28T15:11:50.341Z (in UTC)",
+			"layout": "Your layout was " + startTime,
+		})
+		return
+	}
+	end, err := time.Parse(time.RFC3339, endTime)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "The query for end time is not a valid timestamp!" +
+				" The correct layout is e.g 2020-06-28T15:11:50.341Z (in UTC)",
+			"layout": "Your layout was " + endTime,
+		})
+		return
+	}
+
+	fmt.Println(end.String())
+
 	var bookings []db.Booking
-	bookings, err := db.GetBookingsByCompanyID(dbbb, id.(int))
+	bookings, err = db.GetBookingsByCompanyID(dbbb, id.(int), start, end)
 
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"message": "Could not get bookings from database!",
 			"error":   err.Error(),
 		})
+		return
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Success",
