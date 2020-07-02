@@ -12,7 +12,7 @@ func InitCompanyRoutes(r *gin.Engine) {
 	r.POST("/company/confirm/:code", api.ConfirmCompany)
 	r.GET("/company", api.GetCompany)
 	r.POST("/company/distance", api.GetCompanyDistance)
-	r.GET("/company/search/:lon/:lat", api.SearchForCompanies)
+	r.GET("/company/search", api.SearchForCompanies)
 
 	// to log in
 	r.POST("/company/login", api.CompanyLogin)
