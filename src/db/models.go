@@ -78,3 +78,11 @@ type Availabilty struct {
 	DailyAvailable []float64 `json:"availability_average"`
 	AvailableSlots []int     `json:"available_slots`
 }
+
+type SearchQuery struct {
+	String    null.String
+	Longitude null.Float
+	Latitude  null.Float
+	Distance  uint64
+	Limit     uint64
+}
