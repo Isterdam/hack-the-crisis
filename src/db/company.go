@@ -2,6 +2,7 @@ package db
 
 import (
 	"fmt"
+	"math"
 	"time"
 
 	null "gopkg.in/guregu/null.v3"
@@ -114,4 +115,38 @@ func GetCompanySlotAvailability(db *DB, compID int, startTime time.Time, days in
 	err := stmt.Select(&av, compID, startTime, days)
 
 	return av, err
+}
+
+func SearchCompanies(db *DB, sq SearchQuery) ([]CompanyPublic, error) {
+	stmt := db.prepared["company/search"]
+
+	companies := []CompanyPublic{}
+	params := make([]interface{}, 8)
+
+	params[4] = sq.Latitude
+	params[5] = sq.Longitude
+
+	//fmt.Printf("%#v", sq)
+	if sq.Latitude.Valid && sq.Longitude.Valid {
+		R := float64(sq.Distance) / 6371
+		params[6] = R
+
+		LatMax := sq.Latitude.Float64 + R
+		LatMin := sq.Latitude.Float64 - R
+		params[0] = LatMin
+		params[1] = LatMax
+
+		DLon := math.Asin(math.Sin(R) / math.Cos(sq.Latitude.Float64))
+
+		LonMin := sq.Longitude.Float64 - DLon
+		LonMax := sq.Longitude.Float64 + DLon
+		params[2] = LonMin
+		params[3] = LonMax
+	}
+
+	params[7] = sq.String
+
+	err := stmt.Select(&companies, params...)
+
+	return companies, err
 }
