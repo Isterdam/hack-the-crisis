@@ -1,6 +1,10 @@
 package db
 
-import "database/sql"
+import (
+	"database/sql"
+	// "fmt"
+	"time"
+)
 
 // reee ingen inbyggd insert-funktion
 func InsertBooking(db *DB, book Booking) error {
@@ -33,10 +37,10 @@ func GetBookingsBySlotID(db *DB, slotID int) ([]Booking, error) {
 	return bookings, err
 }
 
-func GetBookingsByCompanyID(db *DB, companyID int) ([]Booking, error) {
+func GetBookingsByCompanyID(db *DB, companyID int, startTime time.Time, endTime time.Time) ([]Booking, error) {
 	stmt := db.prepared["booking/getByCompanyID"]
 	bookings := []Booking{}
-	err := stmt.Select(&bookings, companyID)
+	err := stmt.Select(&bookings, companyID, startTime, endTime)
 
 	return bookings, err
 }
