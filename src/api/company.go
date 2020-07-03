@@ -208,16 +208,16 @@ func AddSlots(c *gin.Context) {
 		return
 	}
 
-	if req.Repetitions.Valid && req.Repetitions.Int64 <= 0 {
+	if req.Repetitions.Valid && req.Repetitions.Int64 < 0 {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"message": "Number of repetitions must be larger than 0.",
+			"message": "Number of repetitions cannot be less than 0.",
 		})
 		return
 	} else if !req.Repetitions.Valid {
 		req.Repetitions = null.IntFrom(1)
 	}
 
-	for i := int64(0); i < req.Repetitions.Int64; i++ {
+	for i := int64(0); i <= req.Repetitions.Int64; i++ {
 		for _, slot := range req.Slots {
 			slot.CompanyID = null.IntFrom(int64(id))
 			slot.StartTime = null.TimeFrom(slot.StartTime.Time.AddDate(0, 0, int(i*7)))
