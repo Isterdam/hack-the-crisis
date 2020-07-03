@@ -80,7 +80,7 @@ func BookTime(c *gin.Context) {
 	// whitelist ticked code - to be checked at confirmation if it is contained
 	ConfirmedBookings[ticketCode] = booking
 
-	url := "www.shopalone.se" + c.Request.URL.Path + "/confirm/" + ticketCode
+	url := "www.booklie.se" + c.Request.URL.Path + "/confirm/" + ticketCode
 
 	dbb, exist := c.Get("db")
 	if !exist {
@@ -112,7 +112,7 @@ func BookTime(c *gin.Context) {
 	timeStart := timeSlot.StartTime.Time.In(loc)
 	timeStop := timeSlot.EndTime.Time.In(loc)
 
-	confirmation := "Hello " + booking.FirstName.String + "!\n\n" + "Please confirm your booking at " + store.Name.String + " from " + timeStart.Format("15:04") + " to " + timeStop.Format("15:04") + " and get your ticket in the link below:\n\n" + url
+	confirmation := "Hej " + booking.FirstName.String + "!\n\n" + "Vänligen bekräfta din bokning på " + store.Name.String + " från " + timeStart.Format("15:04") + " till " + timeStop.Format("15:04") + " i länken nedan:\n\n" + url
 
 	go Send_text(c, booking.PhoneNumber.String, confirmation)
 
@@ -149,7 +149,7 @@ func ConfirmBookAndGetTicket(c *gin.Context) {
 			bookingExists = false
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"message": "Something went wrong",
+				"message": "Something went wrong when getting the booking",
 			})
 			return
 		}
@@ -160,7 +160,7 @@ func ConfirmBookAndGetTicket(c *gin.Context) {
 	if ConfirmedBookings[code].PhoneNumber.String == "" && !bookingExists {
 		// booking does not exist
 		c.JSON(200, gin.H{
-			"message": "This booking does not exist.",
+			"message": "This booking does not exist",
 		})
 		return
 	} else if ConfirmedBookings[code].PhoneNumber.String == "" && bookingExists {
@@ -176,7 +176,7 @@ func ConfirmBookAndGetTicket(c *gin.Context) {
 
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"message": "Something went wrong",
+				"message": "Could not insert the booking",
 			})
 			return
 		}
@@ -184,7 +184,7 @@ func ConfirmBookAndGetTicket(c *gin.Context) {
 		booking, err = db.GetBooking(dbbb, code)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"message": "Something went wrong",
+				"message": "Could not get the booking",
 			})
 			return
 		}

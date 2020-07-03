@@ -14,7 +14,7 @@ import (
 // to_phone structure: "+46....", confirmation is the string that is sent
 func Send_text(c *gin.Context, to_phone string, confirmation string) {
 	data := url.Values{
-		"from":    {"ShopAlone"},
+		"from":    {"Booklie"},
 		"to":      {to_phone},
 		"message": {confirmation},
 	}
