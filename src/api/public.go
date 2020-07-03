@@ -92,13 +92,13 @@ func BookTime(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Something went wrong!",
+			"message": "Could not get slot!",
 		})
 	}
 	store, err := db.GetCompanyByID(dbbb, int(timeSlot.CompanyID.Int64))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Something went wrong!",
+			"message": "Could not get company by ID!",
 		})
 	}
 
