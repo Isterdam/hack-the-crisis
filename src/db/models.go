@@ -62,6 +62,12 @@ type Booking struct {
 	Status      null.String `db:"status" json:"status"`
 }
 
+type BookingSlot struct {
+	ID null.Int `db:"booking_id" json:"id"` //TODO, find a solution that does not require this
+	Booking
+	Slot `json:"slot,omitempty"` //Adding a tag makes the json object nested
+}
+
 type Distance struct {
 	Longitude float64 `json:"longitude"`
 	Latitude  float64 `json:"latitude"`
