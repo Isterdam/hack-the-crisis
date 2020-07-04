@@ -11,7 +11,7 @@ var queries = []KVP{
 	KVP{K: "book/add", V: "INSERT INTO bookings (id, slot_id, phone_number, code, first_name, last_name, visitee, message, status) VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8)"},
 	KVP{K: "book/get", V: "SELECT * FROM bookings WHERE code=$1"},
 	KVP{K: "book/remove", V: "DELETE FROM bookings WHERE code=$1"},
-	KVP{K: "booking/getByCompanyID", V: "SELECT b.* FROM bookings b JOIN slots s ON s.id=b.slot_id WHERE s.company_id=$1 AND (start_time >= $2 AND end_time <= $3)"},
+	KVP{K: "booking/getByCompanyID", V: "SELECT b.id AS booking_id, * FROM bookings b JOIN slots s ON s.id=b.slot_id WHERE s.company_id=$1 AND (s.start_time >= $2 AND s.end_time <= $3) ORDER BY s.id"},
 	KVP{K: "booking/getBySlotID", V: "SELECT * FROM bookings WHERE slot_id=$1"},
 	KVP{K: "company/insert", V: "INSERT INTO company (id, name, adress, city, country, post_code, contact_firstname, contact_number, contact_lastname, verified, email, password, lon, lat, contact_email) VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8, DEFAULT, lower($9), $10, $11, $12, lower($13))"},
 	KVP{K: "company/update/location", V: "UPDATE company SET name=$2, adress=$3, city=$4, country=$5, post_code=$6, lon=$7, lat=$8 WHERE id=$1 RETURNING *"},
