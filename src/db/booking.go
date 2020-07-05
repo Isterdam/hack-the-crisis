@@ -45,12 +45,10 @@ func GetBookingsByPhoneNum(db *DB, phoneNum string) ([]Booking, error) {
 	return bookings, err
 }
 
-func GetBookingsByCompanyID(db *DB, companyID int, startTime time.Time, endTime time.Time) ([]Booking, error) {
+func GetBookingsByCompanyID(db *DB, companyID int, startTime time.Time, endTime time.Time) (ret []BookingSlot, err error) {
 	stmt := db.prepared["booking/getByCompanyID"]
-	bookings := []Booking{}
-	err := stmt.Select(&bookings, companyID, startTime, endTime)
-
-	return bookings, err
+	err = stmt.Select(&ret, companyID, startTime, endTime)
+	return
 }
 
 func UpdateBookingStatus(db *DB, companyID int, bookingID int, status string) ([]Booking, error) {

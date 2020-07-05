@@ -524,9 +524,8 @@ func AddBookingAsCompany(c *gin.Context) {
 }
 
 func GetAllCompanyBookings(c *gin.Context) {
-	dbb := c.MustGet("db")
-	dbbb := dbb.(*db.DB)
-	id := c.MustGet("id")
+	dbbb := c.MustGet("db").(*db.DB)
+	id := c.MustGet("id").(int)
 
 	startTime := c.Query("start")
 	endTime := c.Query("end")
@@ -550,18 +549,16 @@ func GetAllCompanyBookings(c *gin.Context) {
 		return
 	}
 
-	fmt.Println(end.String())
-
-	var bookings []db.Booking
-	bookings, err = db.GetBookingsByCompanyID(dbbb, id.(int), start, end)
+	bookings, err := db.GetBookingsByCompanyID(dbbb, id, start, end)
 
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"message": "Could not get bookings from database!",
 			"error":   err.Error(),
 		})
 		return
 	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Success",
 		"data":    bookings,
