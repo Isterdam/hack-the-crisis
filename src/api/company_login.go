@@ -70,10 +70,16 @@ func CompanyLogin(c *gin.Context) {
 		return
 	}
 
-	// set expiration to now + 12 hours
+	// set expiration to now + 1 week
 	// fill claims with username and standard
-	loc, _ := time.LoadLocation("Europe/Stockholm")
-	expirationTime := time.Now().In(loc).Add(12 * time.Hour)
+	loc, err := time.LoadLocation("Europe/Stockholm")
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"message": "Could not retrieve time zone!",
+		})
+		return
+	}
+	expirationTime := time.Now().In(loc).Add(168 * time.Hour)
 	claims := &auth.Claims{
 		ID: int(loginComp.ID.Int64),
 		StandardClaims: jwt.StandardClaims{
