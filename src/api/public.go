@@ -65,30 +65,42 @@ func GetStoreSlots(c *gin.Context) {
 // @Param booking body db.Booking true "Booking"
 // @Router /book [post]
 func BookTime(c *gin.Context) {
-	dbb, exist := c.Get("db")
-	if !exist {
-		return
-	}
-	dbbb := dbb.(*db.DB)
+	dbb := c.MustGet("db").(*db.DB)
 
 	var booking db.Booking
 	err := json.NewDecoder(c.Request.Body).Decode(&booking)
 	// could not parse enough arguments
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"message": "Page not found",
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid JSON.",
 		})
 		return
 	}
 
 	/*
-	if hasAlreadyBooked(booking.PhoneNumber.String, dbbb, c) {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "This phone number has already booked a time!",
+		if hasAlreadyBooked(booking.PhoneNumber.String, dbbb, c) {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "This phone number has already booked a time!",
+			})
+			return
+		}
+	*/
+
+	timeSlot, err := db.GetSlot(dbb, int(booking.SlotID.Int64))
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Could not get slot!",
 		})
 		return
 	}
-	*/
+
+	if timeSlot.Booked.Int64 == timeSlot.MaxAmount.Int64 {
+		c.JSON(http.StatusForbidden, gin.H{
+			"message": "This slot is full.",
+		})
+		return
+	}
 
 	ticketCode := generateTicketCode(booking)
 	booking.Code = null.StringFrom(ticketCode)
@@ -97,18 +109,12 @@ func BookTime(c *gin.Context) {
 
 	url := "www.booklie.se" + c.Request.URL.Path + "/confirm/" + ticketCode
 
-	timeSlot, err := db.GetSlot(dbbb, int(booking.SlotID.Int64))
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Could not get slot!",
-		})
-	}
-	store, err := db.GetCompanyByID(dbbb, int(timeSlot.CompanyID.Int64))
+	store, err := db.GetCompanyByID(dbb, int(timeSlot.CompanyID.Int64))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Could not get company by ID!",
 		})
+		return
 	}
 
 	// only gets the zeroth element of zone list (because European countries only have single time zones)
@@ -117,16 +123,17 @@ func BookTime(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Could not find the location for time zone!",
 		})
+		return
 	}
 	timeStart := timeSlot.StartTime.Time.In(loc)
 	timeStop := timeSlot.EndTime.Time.In(loc)
 
 	confirmation := "Hej " + booking.FirstName.String + "!\n\n" + "Vänligen bekräfta din bokning på " + store.Name.String + " den " + timeStart.Format("2/1") + " klockan " + timeStart.Format("15:04") + "-" + timeStop.Format("15:04") + " i länken nedan:\n\n" + url + "\n\nNotera att din bokning först blir giltig när du bekräftat den genom länken ovan"
-	
+
 	go Send_text(c, booking.PhoneNumber.String, confirmation)
 
 	c.JSON(200, gin.H{
-		"message": "Booking was successful",
+		"message": "Booking was successful.",
 	})
 }
 
