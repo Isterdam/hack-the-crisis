@@ -12,5 +12,5 @@ func InitPublicRoutes(r *gin.Engine) {
 	r.POST("/availability", api.GetCompanyAvailability)
 	r.POST("/book", api.BookTime)                              // by phone number
 	r.POST("/book/confirm/:code", api.ConfirmBookAndGetTicket) // by code
-	r.POST("/unbook", api.Unbook)
+	r.POST("/book/unbook/:code", api.Unbook)
 }

@@ -54,3 +54,9 @@ func UpdateBookingStatus(db *DB, companyID int, bookingID int, status string) ([
 
 	return booking, err
 }
+
+func UpdateBookingStatusByCode(db *DB, code string, status string) (ret Booking, err error) {
+	stmt := db.prepared["book/code/update/status"]
+	err = stmt.Get(&ret, code, status)
+	return
+}

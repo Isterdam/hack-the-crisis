@@ -203,17 +203,39 @@ func ConfirmBookAndGetTicket(c *gin.Context) {
 func Unbook(c *gin.Context) {
 	code := c.Param("code")
 
-	dbb, exist := c.Get("db")
-	if !exist {
+	dbb := c.MustGet("db").(*db.DB)
+
+	updatedBooking, err := db.UpdateBookingStatusByCode(dbb, code, "cancelled")
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Could not cancel booking.",
+		})
 		return
 	}
-	dbbb := dbb.(*db.DB)
 
-	err := db.RemoveBooking(dbbb, code)
+	slot, err := db.GetSlot(dbb, int(updatedBooking.SlotID.Int64))
+
 	if err != nil {
-		fmt.Println(err)
-		fmt.Println("Could not remove booking!")
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Booking has been cancelled but slot has not correct amount of bookings.",
+		})
+		return
 	}
+
+	_, err = db.UpdateSlotBooked(dbb, int(slot.ID.Int64), int(slot.Booked.Int64)-1)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Booking has been cancelled but slot has not correct amount of bookings.",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Success",
+		"data":    updatedBooking,
+	})
 }
 
 // GetSlotLoad godoc
