@@ -5,8 +5,7 @@ import (
 )
 
 // fields of type time and int should not be necessary to sanitize
-// since they are parsed into structs from error. An invalid type would 
-// already throw an error
+// since they are parsed into structs. An invalid type would already throw an error
 
 type Sanitizer interface {
 	Sanitize()
