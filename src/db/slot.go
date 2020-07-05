@@ -75,3 +75,9 @@ func GetSlotsByID(db *DB, slotIDs []int, cID int) ([]Slot, error) {
 
 	return slots, err
 }
+
+func UpdateSlotBooked(db *DB, slotID int, booked int) (slot Slot, err error) {
+	stmt := db.prepared["company/slot/update/booked"]
+	err = stmt.Get(&slot, slotID, booked)
+	return
+}
