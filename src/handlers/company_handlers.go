@@ -28,6 +28,7 @@ func InitCompanyRoutes(r *gin.Engine) {
 		auth.PATCH("/company/slots", api.UpdateSlot)
 		auth.DELETE("/company/slots", api.DeleteSlots)
 
+		auth.POST("/company/addBooking", api.AddBookingAsCompany)
 		auth.GET("/company/booking", api.GetAllCompanyBookings)
 		auth.PATCH("/company/booking/:bookingID/status", api.UpdateCompanyBookingStatus)
 	}

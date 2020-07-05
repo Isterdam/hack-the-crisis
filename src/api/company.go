@@ -447,6 +447,7 @@ func VerifyCode(c *gin.Context) {
 			"message": "Company body could not be parsed correctly!",
 			"error":   err.Error(),
 		})
+		return
 	}
 
 	loggedInCompanyID := int(comp.ID.Int64)
@@ -493,6 +494,33 @@ func VerifyCode(c *gin.Context) {
 			"message": "Ticket was not verified!",
 		})
 	}
+}
+
+func AddBookingAsCompany(c *gin.Context) {
+	dbb := c.MustGet("db")
+	dbbb := dbb.(*db.DB)
+
+	var booking db.Booking
+	err := json.NewDecoder(c.Request.Body).Decode(&booking)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"message": "Booking body could not be parsed correctly!",
+		})
+		return
+	}
+
+	err = db.InsertBooking(dbbb, booking)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"message": "Could not insert booking into database!",
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"message": "Booking was added successfully!",
+		"data":    booking,
+	})
 }
 
 func GetAllCompanyBookings(c *gin.Context) {
