@@ -81,12 +81,14 @@ func BookTime(c *gin.Context) {
 		return
 	}
 
+	/*
 	if hasAlreadyBooked(booking.PhoneNumber.String, dbbb, c) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "This phone number has already booked a time!",
 		})
 		return
 	}
+	*/
 
 	ticketCode := generateTicketCode(booking)
 	booking.Code = null.StringFrom(ticketCode)
