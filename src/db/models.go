@@ -4,6 +4,7 @@ import (
 	null "gopkg.in/guregu/null.v3"
 )
 
+// is used as input
 type Slot struct {
 	ID        null.Int  `db:"id" json:"id"`
 	CompanyID null.Int  `db:"company_id" json:"company_id"`
@@ -13,6 +14,7 @@ type Slot struct {
 	Booked    null.Int  `db:"booked" json:"booked"`
 }
 
+// is used as input
 type Company struct {
 	ID         null.Int    `db:"id" json:"id"`
 	Name       null.String `db:"name" json:"name"`
@@ -50,6 +52,7 @@ type CompanyPublic struct {
 	DistToUser null.Float  `db:"-" json:"dist_to_user"`
 }
 
+// is used as input
 type Booking struct {
 	ID          null.Int    `db:"id" json:"id"`
 	SlotID      null.Int    `db:"slot_id" json:"slot_id"`
