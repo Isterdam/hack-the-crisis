@@ -584,6 +584,28 @@ func UpdateCompanyBookingStatus(c *gin.Context) {
 			"message": "This booking does not exist",
 		})
 	} else {
+		if req.Status == "cancelled" {
+			slot, err := db.GetSlot(dbbb, int(updatedBooking[0].SlotID.Int64))
+			if err != nil {
+				c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+					"message": "Could not get the time slot from database!",
+				})
+			}
+
+			stockholmTime, err := time.LoadLocation("Europe/Stockholm") // sorry this is hard-coded
+			if err != nil {
+				c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+					"message": "Could not get time zone!",
+				})
+			}
+
+			start := slot.StartTime.Time.In(stockholmTime)
+			stop := slot.EndTime.Time.In(stockholmTime)
+
+			text := "Hej " + updatedBooking[0].FirstName.String + "!\n\nDin bokning den " + start.Format("2/1") + " klockan " + start.Format("15:04") + "-" + stop.Format("15:04") + " har tyvärr ställts in.\n\nVi beklagar detta!"
+
+			go Send_text(c, updatedBooking[0].PhoneNumber.String, text)
+		}
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Success",
 			"data":    updatedBooking[0], //The array will always contain only one booking
