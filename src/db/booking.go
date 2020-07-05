@@ -37,6 +37,14 @@ func GetBookingsBySlotID(db *DB, slotID int) ([]Booking, error) {
 	return bookings, err
 }
 
+func GetBookingsByPhoneNum(db *DB, phoneNum string) ([]Booking, error) {
+	stmt := db.prepared["booking/getByPhone"]
+	bookings := []Booking{}
+	err := stmt.Select(&bookings, phoneNum)
+
+	return bookings, err
+}
+
 func GetBookingsByCompanyID(db *DB, companyID int, startTime time.Time, endTime time.Time) (ret []BookingSlot, err error) {
 	stmt := db.prepared["booking/getByCompanyID"]
 	err = stmt.Select(&ret, companyID, startTime, endTime)

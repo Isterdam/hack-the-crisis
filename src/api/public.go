@@ -65,6 +65,12 @@ func GetStoreSlots(c *gin.Context) {
 // @Param booking body db.Booking true "Booking"
 // @Router /book [post]
 func BookTime(c *gin.Context) {
+	dbb, exist := c.Get("db")
+	if !exist {
+		return
+	}
+	dbbb := dbb.(*db.DB)
+
 	var booking db.Booking
 	err := json.NewDecoder(c.Request.Body).Decode(&booking)
 	// could not parse enough arguments
@@ -75,18 +81,21 @@ func BookTime(c *gin.Context) {
 		return
 	}
 
+	/*
+	if hasAlreadyBooked(booking.PhoneNumber.String, dbbb, c) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "This phone number has already booked a time!",
+		})
+		return
+	}
+	*/
+
 	ticketCode := generateTicketCode(booking)
 	booking.Code = null.StringFrom(ticketCode)
 	// whitelist ticked code - to be checked at confirmation if it is contained
 	ConfirmedBookings[ticketCode] = booking
 
 	url := "www.booklie.se" + c.Request.URL.Path + "/confirm/" + ticketCode
-
-	dbb, exist := c.Get("db")
-	if !exist {
-		return
-	}
-	dbbb := dbb.(*db.DB)
 
 	timeSlot, err := db.GetSlot(dbbb, int(booking.SlotID.Int64))
 
@@ -113,7 +122,7 @@ func BookTime(c *gin.Context) {
 	timeStop := timeSlot.EndTime.Time.In(loc)
 
 	confirmation := "Hej " + booking.FirstName.String + "!\n\n" + "Vänligen bekräfta din bokning på " + store.Name.String + " den " + timeStart.Format("2/1") + " klockan " + timeStart.Format("15:04") + "-" + timeStop.Format("15:04") + " i länken nedan:\n\n" + url + "\n\nNotera att din bokning först blir giltig när du bekräftat den genom länken ovan"
-
+	
 	go Send_text(c, booking.PhoneNumber.String, confirmation)
 
 	c.JSON(200, gin.H{
@@ -124,6 +133,34 @@ func BookTime(c *gin.Context) {
 func generateTicketCode(booking db.Booking) string {
 	// last 2 digits of current time + random num [10, 100) + booking name (where space is replaced by underscore)
 	return strconv.FormatInt(time.Now().Unix(), 10)[8:] + strconv.Itoa(10+rand.Intn(90)) + strings.ReplaceAll(booking.FirstName.String, " ", "_")
+}
+
+func hasAlreadyBooked(phoneNum string, dbb *db.DB, c *gin.Context) bool {
+	bookings, err := db.GetBookingsByPhoneNum(dbb, phoneNum)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Something went wrong when trying to check for previous bookings with this phone number",
+		})
+	}
+
+	currentTime := time.Now().UTC()
+
+	if len(bookings) == 0 {
+		return false
+	} else { // also have to check if current bookings have already taken place
+		for i := 0; i < len(bookings); i++ {
+			slot, err := db.GetSlot(dbb, int(bookings[i].SlotID.Int64))
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{
+					"message": "Could not get slot by ID in checking if phone number has already booked",
+				})
+			}
+			if currentTime.Before(slot.StartTime.Time) {
+				return true
+			}
+		}
+		return false
+	}
 }
 
 // ConfirmBookAndGetTicket godoc
