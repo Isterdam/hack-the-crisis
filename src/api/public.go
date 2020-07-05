@@ -82,12 +82,12 @@ func BookTime(c *gin.Context) {
 	}
 
 	/*
-	if hasAlreadyBooked(booking.PhoneNumber.String, dbbb, c) {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "This phone number has already booked a time!",
-		})
-		return
-	}
+		if hasAlreadyBooked(booking.PhoneNumber.String, dbbb, c) {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "This phone number has already booked a time!",
+			})
+			return
+		}
 	*/
 
 	ticketCode := generateTicketCode(booking)
@@ -122,7 +122,7 @@ func BookTime(c *gin.Context) {
 	timeStop := timeSlot.EndTime.Time.In(loc)
 
 	confirmation := "Hej " + booking.FirstName.String + "!\n\n" + "Vänligen bekräfta din bokning på " + store.Name.String + " den " + timeStart.Format("2/1") + " klockan " + timeStart.Format("15:04") + "-" + timeStop.Format("15:04") + " i länken nedan:\n\n" + url + "\n\nNotera att din bokning först blir giltig när du bekräftat den genom länken ovan"
-	
+
 	go Send_text(c, booking.PhoneNumber.String, confirmation)
 
 	c.JSON(200, gin.H{
@@ -218,10 +218,20 @@ func ConfirmBookAndGetTicket(c *gin.Context) {
 			return
 		}
 
-		booking, err = db.GetBooking(dbbb, code)
+		var booking db.BookingSlot
+		booking.Booking, err = db.GetBooking(dbbb, code)
+
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"message": "Could not get the booking",
+			})
+			return
+		}
+		booking.ID = booking.Booking.ID
+		booking.Slot, err = db.GetSlot(dbbb, int(booking.Booking.SlotID.Int64))
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Could not get the slot",
 			})
 			return
 		}
@@ -260,7 +270,7 @@ func Unbook(c *gin.Context) {
 		return
 	}
 
-	_, err = db.UpdateSlotBooked(dbb, int(slot.ID.Int64), int(slot.Booked.Int64)-1)
+	slot, err = db.UpdateSlotBooked(dbb, int(slot.ID.Int64), int(slot.Booked.Int64)-1)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -269,9 +279,14 @@ func Unbook(c *gin.Context) {
 		return
 	}
 
+	var booking db.BookingSlot
+	booking.Booking = updatedBooking
+	booking.ID = updatedBooking.ID
+	booking.Slot = slot
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Success",
-		"data":    updatedBooking,
+		"data":    booking,
 	})
 }
 
