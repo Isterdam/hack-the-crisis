@@ -127,7 +127,7 @@ func BookTime(c *gin.Context) {
 	timeStart := timeSlot.StartTime.Time.In(loc)
 	timeStop := timeSlot.EndTime.Time.In(loc)
 
-	confirmation := "Hej " + booking.FirstName.String + "!\n\n" + "Vänligen bekräfta din bokning på " + store.Name.String + " den " + timeStart.Format("2/1") + " klockan " + timeStart.Format("15:04") + "-" + timeStop.Format("15:04") + " i länken nedan:\n\n" + url + "\n\nNotera att din bokning först blir giltig när du bekräftat den genom länken ovan"
+	confirmation := "Hej " + booking.FirstName.String + "!\n\n" + "Vänligen bekräfta din bokning på " + store.Name.String + " den " + timeStart.Format("2/1") + " klockan " + timeStart.Format("15:04") + "-" + timeStop.Format("15:04") + " i länken nedan:\n\n" + url
 
 	go Send_text(c, booking.PhoneNumber.String, confirmation)
 
