@@ -40,6 +40,8 @@ func CompanyLogin(c *gin.Context) {
 		return
 	}
 
+	comp.Sanitize()
+
 	dbb, exist := c.Get("db")
 	if !exist {
 		return

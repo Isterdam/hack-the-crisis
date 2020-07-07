@@ -11,6 +11,7 @@ import (
 
 	"encoding/json"
 	"fmt"
+	"html"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -76,6 +77,8 @@ func BookTime(c *gin.Context) {
 		})
 		return
 	}
+
+	booking.Sanitize()
 
 	/*
 		if hasAlreadyBooked(booking.PhoneNumber.String, dbbb, c) {
@@ -179,6 +182,7 @@ func ConfirmBookAndGetTicket(c *gin.Context) {
 	var bookingExists bool
 
 	code := c.Param("code")
+	code = html.EscapeString(code)
 
 	dbb, exist := c.Get("db")
 	if !exist {
@@ -225,10 +229,20 @@ func ConfirmBookAndGetTicket(c *gin.Context) {
 			return
 		}
 
-		booking, err = db.GetBooking(dbbb, code)
+		var booking db.BookingSlot
+		booking.Booking, err = db.GetBooking(dbbb, code)
+
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"message": "Could not get the booking",
+			})
+			return
+		}
+		booking.ID = booking.Booking.ID
+		booking.Slot, err = db.GetSlot(dbbb, int(booking.Booking.SlotID.Int64))
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Could not get the slot",
 			})
 			return
 		}
@@ -246,6 +260,7 @@ func ConfirmBookAndGetTicket(c *gin.Context) {
 // @Router /unbook [post]
 func Unbook(c *gin.Context) {
 	code := c.Param("code")
+	code = html.EscapeString(code)
 
 	dbb := c.MustGet("db").(*db.DB)
 
@@ -267,7 +282,7 @@ func Unbook(c *gin.Context) {
 		return
 	}
 
-	_, err = db.UpdateSlotBooked(dbb, int(slot.ID.Int64), int(slot.Booked.Int64)-1)
+	slot, err = db.UpdateSlotBooked(dbb, int(slot.ID.Int64), int(slot.Booked.Int64)-1)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -276,9 +291,14 @@ func Unbook(c *gin.Context) {
 		return
 	}
 
+	var booking db.BookingSlot
+	booking.Booking = updatedBooking
+	booking.ID = updatedBooking.ID
+	booking.Slot = slot
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Success",
-		"data":    updatedBooking,
+		"data":    booking,
 	})
 }
 
@@ -290,7 +310,13 @@ func Unbook(c *gin.Context) {
 // @Router /slot/{slotID}/load [get]
 func GetSlotLoad(c *gin.Context) {
 	slotIDStr := c.Param("slotID")
-	slotID, _ := strconv.Atoi(slotIDStr)
+	slotID, err := strconv.Atoi(slotIDStr)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Could not parse slot ID into integer",
+		})
+		return
+	}
 
 	dbb, exist := c.Get("db")
 	if !exist {
