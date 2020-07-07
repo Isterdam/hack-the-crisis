@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"html"
 	"math"
 	"math/rand"
 	"net/http"
@@ -35,6 +36,8 @@ func AddCompany(c *gin.Context) {
 			"error":   err.Error(),
 		})
 	}
+
+	comp.Sanitize()
 
 	if len(comp.Password.String) < 8 {
 		c.AbortWithStatusJSON(400, gin.H{
@@ -88,6 +91,7 @@ func generateVerifyingCode(company db.Company) string {
 // @Router /company/confirm/{code} [post]
 func ConfirmCompany(c *gin.Context) {
 	code := c.Param("code")
+	code = html.EscapeString(code)
 
 	dbb, exist := c.Get("db")
 	if !exist {
@@ -166,6 +170,8 @@ func UpdateCompany(c *gin.Context) {
 			"error":   err.Error(),
 		})
 	}
+
+	comp.Sanitize()
 
 	var newComp db.Company
 	newComp, err = db.UpdateCompany(dbbb, comp)
@@ -439,6 +445,7 @@ func AuthGetCompany(c *gin.Context) {
 // @Router /company/code/{code}/verify [post]
 func VerifyCode(c *gin.Context) {
 	code := c.Param("code")
+	code = html.EscapeString(code)
 
 	var comp db.Company
 	err := json.NewDecoder(c.Request.Body).Decode(&comp)
@@ -449,6 +456,8 @@ func VerifyCode(c *gin.Context) {
 		})
 		return
 	}
+
+	comp.Sanitize()
 
 	loggedInCompanyID := int(comp.ID.Int64)
 
@@ -511,6 +520,8 @@ func AddBookingAsCompany(c *gin.Context) {
 
 	ticketCode := generateTicketCode(booking)
 	booking.Code = null.StringFrom(ticketCode)
+
+	booking.Sanitize()
 
 	err = db.InsertBooking(dbbb, booking)
 	if err != nil {
@@ -582,6 +593,8 @@ func UpdateCompanyBookingStatus(c *gin.Context) {
 		})
 		return
 	}
+
+	req.Status = html.EscapeString(req.Status)
 
 	dbb := c.MustGet("db")
 	dbbb := dbb.(*db.DB)
