@@ -225,10 +225,20 @@ func ConfirmBookAndGetTicket(c *gin.Context) {
 			return
 		}
 
-		booking, err = db.GetBooking(dbbb, code)
+		var booking db.BookingSlot
+		booking.Booking, err = db.GetBooking(dbbb, code)
+
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"message": "Could not get the booking",
+			})
+			return
+		}
+		booking.ID = booking.Booking.ID
+		booking.Slot, err = db.GetSlot(dbbb, int(booking.Booking.SlotID.Int64))
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Could not get the slot",
 			})
 			return
 		}
@@ -268,7 +278,7 @@ func Unbook(c *gin.Context) {
 		return
 	}
 
-	_, err = db.UpdateSlotBooked(dbb, int(slot.ID.Int64), int(slot.Booked.Int64)-1)
+	slot, err = db.UpdateSlotBooked(dbb, int(slot.ID.Int64), int(slot.Booked.Int64)-1)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -277,9 +287,14 @@ func Unbook(c *gin.Context) {
 		return
 	}
 
+	var booking db.BookingSlot
+	booking.Booking = updatedBooking
+	booking.ID = updatedBooking.ID
+	booking.Slot = slot
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Success",
-		"data":    updatedBooking,
+		"data":    booking,
 	})
 }
 
