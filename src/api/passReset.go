@@ -16,7 +16,7 @@ import (
 // TODO: Invalidate previous tokens when a new password is set
 
 type PassClaims struct {
-	Email string 
+	ID int 
 	jwt.StandardClaims
 }
 
@@ -54,7 +54,7 @@ func PasswordReset(c *gin.Context) {
 	expirationTime := time.Now().In(loc).Add(30 * time.Minute)
 
 	passClaims := PassClaims{
-		comp.Email.String, 
+		int(comp.ID.Int64), 
 		jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
 		},
@@ -105,17 +105,17 @@ func PasswordResetToken(c *gin.Context) {
 	})
 	
 	if payload, ok := token.Claims.(*PassClaims); ok {
-		email = payload.Email
-
 		dbb := c.MustGet("db").(*db.DB)
 
-		comp, err := db.GetCompanyByEmail(dbb, email)
+		comp, err := db.GetCompanyByID(dbb, payload.ID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"message": "Something went wrong!",
 			})
 			return
 		}
+
+		email = comp.Email.String
 
 		if ConfirmedHashes[email] == "" {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -145,5 +145,10 @@ func PasswordResetToken(c *gin.Context) {
 		fmt.Println("Password was changed successfully!")
 
 		delete(ConfirmedHashes, email)
+
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Success",
+		})
+		return
 	}
 }
