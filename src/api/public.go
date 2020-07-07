@@ -11,6 +11,7 @@ import (
 
 	"encoding/json"
 	"fmt"
+	"html"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -81,6 +82,8 @@ func BookTime(c *gin.Context) {
 		return
 	}
 
+	booking.Sanitize()
+
 	/*
 		if hasAlreadyBooked(booking.PhoneNumber.String, dbbb, c) {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -103,12 +106,14 @@ func BookTime(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Could not get slot!",
 		})
+		return
 	}
 	store, err := db.GetCompanyByID(dbbb, int(timeSlot.CompanyID.Int64))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Could not get company by ID!",
 		})
+		return
 	}
 
 	// only gets the zeroth element of zone list (because European countries only have single time zones)
@@ -117,11 +122,12 @@ func BookTime(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Could not find the location for time zone!",
 		})
+		return
 	}
 	timeStart := timeSlot.StartTime.Time.In(loc)
 	timeStop := timeSlot.EndTime.Time.In(loc)
 
-	confirmation := "Hej " + booking.FirstName.String + "!\n\n" + "Vänligen bekräfta din bokning på " + store.Name.String + " den " + timeStart.Format("2/1") + " klockan " + timeStart.Format("15:04") + "-" + timeStop.Format("15:04") + " i länken nedan:\n\n" + url + "\n\nNotera att din bokning först blir giltig när du bekräftat den genom länken ovan"
+	confirmation := "Hej " + booking.FirstName.String + "!\n\n" + "Vänligen bekräfta din bokning på " + store.Name.String + " den " + timeStart.Format("2/1") + " klockan " + timeStart.Format("15:04") + "-" + timeStop.Format("15:04") + " i länken nedan:\n\n" + url
 
 	go Send_text(c, booking.PhoneNumber.String, confirmation)
 
@@ -172,6 +178,7 @@ func ConfirmBookAndGetTicket(c *gin.Context) {
 	var bookingExists bool
 
 	code := c.Param("code")
+	code = html.EscapeString(code)
 
 	dbb, exist := c.Get("db")
 	if !exist {
@@ -249,6 +256,7 @@ func ConfirmBookAndGetTicket(c *gin.Context) {
 // @Router /unbook [post]
 func Unbook(c *gin.Context) {
 	code := c.Param("code")
+	code = html.EscapeString(code)
 
 	dbb := c.MustGet("db").(*db.DB)
 
@@ -298,7 +306,13 @@ func Unbook(c *gin.Context) {
 // @Router /slot/{slotID}/load [get]
 func GetSlotLoad(c *gin.Context) {
 	slotIDStr := c.Param("slotID")
-	slotID, _ := strconv.Atoi(slotIDStr)
+	slotID, err := strconv.Atoi(slotIDStr)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Could not parse slot ID into integer",
+		})
+		return
+	}
 
 	dbb, exist := c.Get("db")
 	if !exist {
