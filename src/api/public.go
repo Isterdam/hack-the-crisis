@@ -95,7 +95,7 @@ func BookTime(c *gin.Context) {
 		return
 	}
 
-	if timeSlot.Booked.Int64 == timeSlot.MaxAmount.Int64 {
+	if timeSlot.Booked.Int64 >= timeSlot.MaxAmount.Int64 {
 		c.JSON(http.StatusForbidden, gin.H{
 			"message": "This slot is full.",
 		})
