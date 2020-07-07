@@ -509,6 +509,9 @@ func AddBookingAsCompany(c *gin.Context) {
 		return
 	}
 
+	ticketCode := generateTicketCode(booking)
+	booking.Code = null.StringFrom(ticketCode)
+
 	err = db.InsertBooking(dbbb, booking)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
