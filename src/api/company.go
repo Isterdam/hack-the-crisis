@@ -652,5 +652,4 @@ func UpdateCompanyBookingStatus(c *gin.Context) {
 			"data":    updatedBooking[0], //The array will always contain only one booking
 		})
 	}
-
 }
