@@ -27,6 +27,7 @@ func DeleteSlots(c *gin.Context) {
 	if !exist {
 		return
 	}
+
 	var slotIDs []int
 	err := json.NewDecoder(c.Request.Body).Decode(&slotIDs)
 
@@ -34,7 +35,13 @@ func DeleteSlots(c *gin.Context) {
 		return
 	}
 
-	slots, _ := db.GetSlotsByID(dbbb, slotIDs, ID.(int))
+	slots, err := db.GetSlotsByID(dbbb, slotIDs, ID.(int))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Could not get slot from database by ID!",
+		})
+		return
+	}
 
 	if len(slots) != len(slotIDs) {
 		c.JSON(http.StatusUnauthorized, gin.H{
@@ -46,6 +53,9 @@ func DeleteSlots(c *gin.Context) {
 	dSlots, err := db.DeleteSlots(dbbb, slotIDs)
 
 	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Could not delete slots from database by IDs!",
+		})
 		return
 	}
 
