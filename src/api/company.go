@@ -596,10 +596,9 @@ func UpdateCompanyBookingStatus(c *gin.Context) {
 
 	req.Status = html.EscapeString(req.Status)
 
-	dbb := c.MustGet("db")
-	dbbb := dbb.(*db.DB)
+	dbbb := c.MustGet("db").(*db.DB)
 
-	id := c.MustGet("id")
+	id := c.MustGet("id").(int)
 
 	bookingID, err := strconv.Atoi(c.Param("bookingID"))
 
@@ -610,8 +609,18 @@ func UpdateCompanyBookingStatus(c *gin.Context) {
 		return
 	}
 
-	updatedBooking := []db.Booking{}
-	updatedBooking, err = db.UpdateBookingStatus(dbbb, id.(int), bookingID, req.Status)
+	booking, err := db.GetCompanyBooking(dbbb, id, bookingID)
+
+	//Makes the endpoint idempotent
+	if booking.Status.String == req.Status {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Success",
+			"data":    booking,
+		})
+		return
+	}
+
+	updatedBooking, err := db.UpdateBookingStatus(dbbb, id, bookingID, req.Status)
 
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
@@ -624,33 +633,45 @@ func UpdateCompanyBookingStatus(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{
 			"message": "This booking does not exist",
 		})
-	} else {
-		if req.Status == "cancelled" {
-			slot, err := db.GetSlot(dbbb, int(updatedBooking[0].SlotID.Int64))
-			if err != nil {
-				c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-					"message": "Could not get the time slot from database!",
-				})
-			}
-
-			stockholmTime, err := time.LoadLocation("Europe/Stockholm") // sorry this is hard-coded
-			if err != nil {
-				c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-					"message": "Could not get time zone!",
-				})
-			}
-
-			start := slot.StartTime.Time.In(stockholmTime)
-			stop := slot.EndTime.Time.In(stockholmTime)
-
-			text := "Hej " + updatedBooking[0].FirstName.String + "!\n\nDin bokning den " + start.Format("2/1") + " klockan " + start.Format("15:04") + "-" + stop.Format("15:04") + " har tyvärr ställts in.\n\nVi beklagar detta!"
-
-			go Send_text(c, updatedBooking[0].PhoneNumber.String, text)
-		}
-		c.JSON(http.StatusOK, gin.H{
-			"message": "Success",
-			"data":    updatedBooking[0], //The array will always contain only one booking
-		})
+		return
 	}
+
+	if req.Status == "cancelled" {
+		slot, err := db.GetSlot(dbbb, int(updatedBooking[0].SlotID.Int64))
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+				"message": "Could not get the time slot from database!",
+			})
+		}
+
+		slot.Booked.Int64--
+
+		slot, err = db.UpdateSlot(dbbb, slot)
+
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+				"message": "Could not update slot!",
+			})
+		}
+
+		stockholmTime, err := time.LoadLocation("Europe/Stockholm") // sorry this is hard-coded
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+				"message": "Could not get time zone!",
+			})
+		}
+
+		start := slot.StartTime.Time.In(stockholmTime)
+		stop := slot.EndTime.Time.In(stockholmTime)
+
+		text := "Hej " + updatedBooking[0].FirstName.String + "!\n\nDin bokning den " + start.Format("2/1") + " klockan " + start.Format("15:04") + "-" + stop.Format("15:04") + " har tyvärr ställts in.\n\nVi beklagar detta!"
+
+		go Send_text(c, updatedBooking[0].PhoneNumber.String, text)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Success",
+		"data":    updatedBooking[0], //The array will always contain only one booking
+	})
 
 }

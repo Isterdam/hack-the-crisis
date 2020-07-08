@@ -150,3 +150,9 @@ func SearchCompanies(db *DB, sq SearchQuery) ([]CompanyPublic, error) {
 
 	return companies, err
 }
+
+func GetCompanyBooking(db *DB, companyID int, bookingID int) (ret Booking, err error) {
+	stmt := db.prepared["company/booking/get"]
+	err = stmt.Get(&ret, companyID, bookingID)
+	return
+}

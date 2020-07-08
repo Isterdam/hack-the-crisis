@@ -40,7 +40,7 @@ func UpdateSlot(db *DB, slot Slot) (Slot, error) {
 	var newSlot Slot
 
 	stmt := db.prepared["company/slot/update"]
-	err := stmt.QueryRowx(slot.ID, slot.StartTime, slot.EndTime, slot.MaxAmount).StructScan(&newSlot)
+	err := stmt.QueryRowx(slot.ID, slot.StartTime, slot.EndTime, slot.MaxAmount, slot.Booked).StructScan(&newSlot)
 
 	return newSlot, err
 }
