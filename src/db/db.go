@@ -43,12 +43,14 @@ func InitDB() (*DB, error) {
 		"postgres", driver)
 
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 
 	err = m.Up()
 
-	if err != nil {
+	if err != nil && err != migrate.ErrNoChange {
+		fmt.Println(err)
 		return nil, err
 	}
 
