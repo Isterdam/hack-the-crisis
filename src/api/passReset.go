@@ -7,7 +7,6 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 
 	"encoding/json"
-	"fmt"
 	"os"
 	"time"
 	"net/http"
@@ -75,8 +74,8 @@ func PasswordReset(c *gin.Context) {
 	// whitelist hash
 	ConfirmedHashes[comp.Email.String] = tokenString
 
-	// send e-mail with confirmation link here
-	fmt.Println(url)
+	content := "Hej!\n\nVi har mottagit din begäran om ett nytt lösenord på Booklie.se\n\nVänligen följ länken nedan för att skapa ett nytt lösenord\n\n" + url + "\n\nVänliga hälsningar,\nTeam Booklie"
+	go SendMail(comp.Email.String, "Ditt lösenord på Booklie.se", content)
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Success",
@@ -115,6 +114,13 @@ func PasswordResetToken(c *gin.Context) {
 			return
 		}
 
+		if payload.ID != int(comp.ID.Int64) {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "Invalid token!",
+			})
+			return
+		}
+
 		email = comp.Email.String
 
 		if ConfirmedHashes[email] == "" {
@@ -141,8 +147,8 @@ func PasswordResetToken(c *gin.Context) {
 			return
 		}
 
-		// Send email saying password was successfully changed here
-		fmt.Println("Password was changed successfully!")
+		content := "Hej!\n\nVi bekräftar härmed att ditt lösenord på Booklie.se har uppdaterats\n\nVänliga hälsningar,\nTeam Booklie"
+		go SendMail(comp.Email.String, "Ditt lösenord har återställts", content)
 
 		delete(ConfirmedHashes, email)
 
