@@ -17,8 +17,10 @@ func InitCompanyRoutes(r *gin.Engine) {
 	// to log in
 	r.POST("/company/login", api.CompanyLogin)
 
-	// with company token
+	r.POST("/password/reset", api.PasswordReset)
+	r.POST("/password/reset/confirm/:token", api.PasswordResetToken)
 
+	// with company token
 	auth := r.Group("/", middleware.AuthRequired)
 	{
 		auth.PATCH("/company", api.UpdateCompany)
