@@ -128,6 +128,7 @@ func PasswordResetToken(c *gin.Context) {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 				"message": "Could not generate hash for password!",
 			})
+			return
 		}
 
 		comp.Password.String = string(hash)
