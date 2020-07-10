@@ -1,21 +1,21 @@
 package api
 
 import (
-	"github.com/gin-gonic/gin"
 	"github.com/Isterdam/hack-the-crisis-backend/src/db"
-	"golang.org/x/crypto/bcrypt"
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 
 	"encoding/json"
+	"net/http"
 	"os"
 	"time"
-	"net/http"
 )
 
 // TODO: Invalidate previous tokens when a new password is set
 
 type PassClaims struct {
-	ID int 
+	ID int
 	jwt.StandardClaims
 }
 
@@ -31,7 +31,7 @@ func PasswordReset(c *gin.Context) {
 	}
 
 	dbb := c.MustGet("db").(*db.DB)
-	
+
 	comp, err = db.GetCompanyByEmail(dbb, comp.Email.String)
 	if err != nil {
 		// company does not exist (probably - could be another error), but do not reveal it
@@ -53,7 +53,7 @@ func PasswordReset(c *gin.Context) {
 	expirationTime := time.Now().In(loc).Add(30 * time.Minute)
 
 	passClaims := PassClaims{
-		int(comp.ID.Int64), 
+		int(comp.ID.Int64),
 		jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
 		},
@@ -100,23 +100,16 @@ func PasswordResetToken(c *gin.Context) {
 	pass := comp.Password.String
 
 	token, _ := jwt.ParseWithClaims(tokenString, &PassClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte("JWTKEY"), nil
+		return []byte(os.Getenv("JWTKEY")), nil
 	})
-	
-	if payload, ok := token.Claims.(*PassClaims); ok {
+
+	if payload, ok := token.Claims.(*PassClaims); ok && token.Valid {
 		dbb := c.MustGet("db").(*db.DB)
 
 		comp, err := db.GetCompanyByID(dbb, payload.ID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"message": "Something went wrong!",
-			})
-			return
-		}
-
-		if payload.ID != int(comp.ID.Int64) {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"message": "Invalid token!",
 			})
 			return
 		}
@@ -129,14 +122,14 @@ func PasswordResetToken(c *gin.Context) {
 			})
 			return
 		}
-		
+
 		hash, err := bcrypt.GenerateFromPassword([]byte(pass), bcrypt.MinCost)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 				"message": "Could not generate hash for password!",
 			})
 		}
-	
+
 		comp.Password.String = string(hash)
 
 		_, err = db.UpdateCompany(dbb, comp)
