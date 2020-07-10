@@ -5,6 +5,10 @@ import (
 	"os"
 
 	"github.com/jmoiron/sqlx"
+
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
 type DB struct {
@@ -23,10 +27,33 @@ func (db *DB) prepare(key, query string) error {
 }
 
 func InitDB() (*DB, error) {
-	dbConn, err := sqlx.Connect("postgres", "user="+os.Getenv("DBUSER")+" dbname="+os.Getenv("DBDB")+" host="+os.Getenv("DBHOST")+" password="+os.Getenv("DBPASS"))
+	dbConn, err := sqlx.Connect("postgres", "user="+os.Getenv("DBUSER")+" dbname="+os.Getenv("DBDB")+" host="+os.Getenv("DBHOST")+" "+os.Getenv("DBOPTS")+" password="+os.Getenv("DBPASS"))
 	if err != nil {
 		return nil, err
 	}
+
+	driver, err := postgres.WithInstance(dbConn.DB, &postgres.Config{})
+
+	if err != nil {
+		return nil, err
+	}
+
+	m, err := migrate.NewWithDatabaseInstance(
+		"file://db/migrations",
+		"postgres", driver)
+
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	err = m.Up()
+
+	if err != nil && err != migrate.ErrNoChange {
+		fmt.Println(err)
+		return nil, err
+	}
+
 	dbb := DB{DB: dbConn, prepared: make(map[string]*sqlx.Stmt)}
 
 	err = prepareQueries(&dbb)

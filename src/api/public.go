@@ -66,18 +66,14 @@ func GetStoreSlots(c *gin.Context) {
 // @Param booking body db.Booking true "Booking"
 // @Router /book [post]
 func BookTime(c *gin.Context) {
-	dbb, exist := c.Get("db")
-	if !exist {
-		return
-	}
-	dbbb := dbb.(*db.DB)
+	dbb := c.MustGet("db").(*db.DB)
 
 	var booking db.Booking
 	err := json.NewDecoder(c.Request.Body).Decode(&booking)
 	// could not parse enough arguments
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"message": "Page not found",
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid JSON.",
 		})
 		return
 	}
@@ -93,14 +89,7 @@ func BookTime(c *gin.Context) {
 		}
 	*/
 
-	ticketCode := generateTicketCode(booking)
-	booking.Code = null.StringFrom(ticketCode)
-	// whitelist ticked code - to be checked at confirmation if it is contained
-	ConfirmedBookings[ticketCode] = booking
-
-	url := "www.booklie.se" + c.Request.URL.Path + "/confirm/" + ticketCode
-
-	timeSlot, err := db.GetSlot(dbbb, int(booking.SlotID.Int64))
+	timeSlot, err := db.GetSlot(dbb, int(booking.SlotID.Int64))
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -108,7 +97,22 @@ func BookTime(c *gin.Context) {
 		})
 		return
 	}
-	store, err := db.GetCompanyByID(dbbb, int(timeSlot.CompanyID.Int64))
+
+	if timeSlot.Booked.Int64 >= timeSlot.MaxAmount.Int64 {
+		c.JSON(http.StatusForbidden, gin.H{
+			"message": "This slot is full.",
+		})
+		return
+	}
+
+	ticketCode := generateTicketCode(booking)
+	booking.Code = null.StringFrom(ticketCode)
+	// whitelist ticked code - to be checked at confirmation if it is contained
+	ConfirmedBookings[ticketCode] = booking
+
+	url := "www.booklie.se" + c.Request.URL.Path + "/confirm/" + ticketCode
+
+	store, err := db.GetCompanyByID(dbb, int(timeSlot.CompanyID.Int64))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Could not get company by ID!",
@@ -132,7 +136,7 @@ func BookTime(c *gin.Context) {
 	go Send_text(c, booking.PhoneNumber.String, confirmation)
 
 	c.JSON(200, gin.H{
-		"message": "Booking was successful",
+		"message": "Booking was successful.",
 	})
 }
 

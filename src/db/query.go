@@ -23,10 +23,11 @@ var queries = []KVP{
 	KVP{K: "company/slot/get", V: "SELECT * FROM slots WHERE id=$1"},
 	KVP{K: "company/distance", V: "SELECT * FROM company WHERE (lat >= $1 AND lat <= $2) AND (lon >= $3 AND lon <= $4) AND acos(sin($5) * sin(lat) + cos($5) * cos(lat) * cos(lon - $6)) <= $7"},
 	KVP{K: "company/slot/getAll", V: "SELECT * FROM slots WHERE company_id=$1 ORDER BY start_time"},
-	KVP{K: "company/slot/update", V: "UPDATE slots SET start_time=$2, end_time=$3, max=$4 WHERE id=$1 RETURNING *"},
+	KVP{K: "company/slot/update", V: "UPDATE slots SET start_time=$2, end_time=$3, max=$4, booked=$5 WHERE id=$1 RETURNING *"},
 	KVP{K: "company/slot/update/booked", V: "UPDATE slots SET booked = $2 WHERE id=$1 RETURNING *"},
 	KVP{K: "company/slot/add", V: "INSERT INTO slots (id, company_id, start_time, end_time, max) VALUES (DEFAULT, $1, $2, $3, $4)"},
 	KVP{K: "company/slot/get/betweenTime", V: "select * from slots where start_time between $1 AND $2 AND company_id = $3 ORDER BY start_time"},
+	KVP{K: "company/booking/get", V: "SELECT b.* FROM bookings b JOIN slots s ON s.id=b.slot_id WHERE s.company_id=$1 AND b.id=$2"},
 	KVP{K: "company/get/verified", V: "SELECT * FROM COMPANY WHERE verified=true"},
 	KVP{K: "company/get/avgAvailability", V: `SELECT coalesce((sum(max) - sum(booked)) / sum(max)::float, 0)  as avg
 										        FROM generate_series($2::timestamp, ($2::date + $3::integer)::timestamp, '1 day') t(day)
@@ -41,5 +42,6 @@ var queries = []KVP{
 	KVP{K: "booking/update/status", V: "UPDATE bookings b SET status=$3 FROM slots s WHERE b.id=$2 AND s.company_id=$1 AND b.slot_id=s.id RETURNING b.*"},
 	KVP{K: "company/search", V: `SELECT * FROM company c WHERE (($1::float4 IS NULL OR $2::float4 IS NULL) OR (lat >= $1 AND lat <= $2) AND (lon >= $3 AND lon <= $4) 
 								AND acos(sin($5) * sin(lat) + cos($5) * cos(lat) * cos(lon - $6)) <= $7)
-								AND ($8::varchar(50) IS NULL OR LOWER(c.name) LIKE LOWER(CONCAT('%', $8, '%')))`},
+								AND ($8::varchar(50) IS NULL OR LOWER(c.name) LIKE LOWER(CONCAT('%', $8, '%')))
+								AND c.verified=true`},
 }
