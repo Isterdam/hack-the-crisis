@@ -642,7 +642,7 @@ func UpdateCompanyBookingStatus(c *gin.Context) {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 				"message": "Could not get the time slot from database!",
 			})
-      return
+			return
 		}
 
 		slot.Booked.Int64--
@@ -653,7 +653,7 @@ func UpdateCompanyBookingStatus(c *gin.Context) {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 				"message": "Could not update slot!",
 			})
-      return
+			return
 		}
 
 		stockholmTime, err := time.LoadLocation("Europe/Stockholm") // sorry this is hard-coded
@@ -661,7 +661,7 @@ func UpdateCompanyBookingStatus(c *gin.Context) {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 				"message": "Could not get time zone!",
 			})
-      return
+			return
 		}
 
 		start := slot.StartTime.Time.In(stockholmTime)
