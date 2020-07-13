@@ -581,16 +581,20 @@ func GetAllCompanyBookings(c *gin.Context) {
 }
 
 func UpdateCompanyBookingStatus(c *gin.Context) {
+	dbbb := c.MustGet("db").(*db.DB)
+	id := c.MustGet("id").(int)
+
 	var req struct {
 		Status        string `json:"status"`
 		StatusMessage string `json:"status_message"`
+		BookingID     int    `uri:"bookingID"`
 	}
 
-	err := json.NewDecoder(c.Request.Body).Decode(&req)
+	err := c.ShouldBindJSON(&req)
 
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"error": "Invalid JSON",
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid JSON",
 		})
 		return
 	}
@@ -598,20 +602,16 @@ func UpdateCompanyBookingStatus(c *gin.Context) {
 	req.Status = html.EscapeString(req.Status)
 	req.StatusMessage = html.EscapeString(req.StatusMessage)
 
-	dbbb := c.MustGet("db").(*db.DB)
-
-	id := c.MustGet("id").(int)
-
-	bookingID, err := strconv.Atoi(c.Param("bookingID"))
+	err = c.ShouldBindUri(&req)
 
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid booking ID",
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid booking ID",
 		})
 		return
 	}
 
-	booking, err := db.GetCompanyBooking(dbbb, id, bookingID)
+	booking, err := db.GetCompanyBooking(dbbb, id, req.BookingID)
 
 	//Makes the endpoint idempotent
 	if booking.Status.String == req.Status {
@@ -622,11 +622,11 @@ func UpdateCompanyBookingStatus(c *gin.Context) {
 		return
 	}
 
-	updatedBooking, err := db.UpdateBookingStatus(dbbb, id, bookingID, req.Status, req.StatusMessage)
+	updatedBooking, err := db.UpdateBookingStatus(dbbb, id, req.BookingID, req.Status, req.StatusMessage)
 
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"error": "Internal Database Error",
+			"message": "Internal Database Error",
 		})
 		return
 	}
@@ -669,7 +669,7 @@ func UpdateCompanyBookingStatus(c *gin.Context) {
 		start := slot.StartTime.Time.In(stockholmTime)
 		stop := slot.EndTime.Time.In(stockholmTime)
 
-		text := "Hej " + updatedBooking[0].FirstName.String + "!\n\nDin bokning den " + start.Format("2/1") + " klockan " + start.Format("15:04") + "-" + stop.Format("15:04") + " har tyvärr ställts in.\n\nVi beklagar detta!"
+		text := "Hej " + updatedBooking[0].FirstName.String + "!\n\nDin bokning den " + start.Format("2/1") + " klockan " + start.Format("15:04") + "-" + stop.Format("15:04") + " har ställts in.\n\n" + req.StatusMessage
 
 		go Send_text(c, updatedBooking[0].PhoneNumber.String, text)
 	}
