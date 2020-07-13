@@ -54,15 +54,16 @@ type CompanyPublic struct {
 
 // is used as input
 type Booking struct {
-	ID          null.Int    `db:"id" json:"id"`
-	SlotID      null.Int    `db:"slot_id" json:"slot_id"`
-	PhoneNumber null.String `db:"phone_number" json:"phone_number"`
-	Code        null.String `db:"code" json:"code"`
-	FirstName   null.String `db:"first_name" json:"first_name"`
-	LastName    null.String `db:"last_name" json:"last_name"`
-	Visitee     null.String `db:"visitee" json:"visitee"`
-	Message     null.String `db:"message" json:"message"`
-	Status      null.String `db:"status" json:"status"`
+	ID            null.Int    `db:"id" json:"id"`
+	SlotID        null.Int    `db:"slot_id" json:"slot_id"`
+	PhoneNumber   null.String `db:"phone_number" json:"phone_number"`
+	Code          null.String `db:"code" json:"code"`
+	FirstName     null.String `db:"first_name" json:"first_name"`
+	LastName      null.String `db:"last_name" json:"last_name"`
+	Visitee       null.String `db:"visitee" json:"visitee"`
+	Message       null.String `db:"message" json:"message"`
+	Status        null.String `db:"status" json:"status"`
+	StatusMessage null.String `db:"status_message" json:"status_message"`
 }
 
 type BookingSlot struct {

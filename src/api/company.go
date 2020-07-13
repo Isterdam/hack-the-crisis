@@ -582,7 +582,8 @@ func GetAllCompanyBookings(c *gin.Context) {
 
 func UpdateCompanyBookingStatus(c *gin.Context) {
 	var req struct {
-		Status string
+		Status        string `json:"status"`
+		StatusMessage string `json:"status_message"`
 	}
 
 	err := json.NewDecoder(c.Request.Body).Decode(&req)
@@ -595,6 +596,7 @@ func UpdateCompanyBookingStatus(c *gin.Context) {
 	}
 
 	req.Status = html.EscapeString(req.Status)
+	req.StatusMessage = html.EscapeString(req.StatusMessage)
 
 	dbbb := c.MustGet("db").(*db.DB)
 
@@ -620,7 +622,7 @@ func UpdateCompanyBookingStatus(c *gin.Context) {
 		return
 	}
 
-	updatedBooking, err := db.UpdateBookingStatus(dbbb, id, bookingID, req.Status)
+	updatedBooking, err := db.UpdateBookingStatus(dbbb, id, bookingID, req.Status, req.StatusMessage)
 
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
