@@ -253,27 +253,40 @@ func AddSlots(c *gin.Context) {
 // @Success 200 {array} db.Slot
 // @Router /company/slots [get]
 func GetSlots(c *gin.Context) {
-	dbb, exist := c.Get("db")
-	if !exist {
-		return
-	}
-	dbbb := dbb.(*db.DB)
+	dbbb := c.MustGet("db").(*db.DB)
+	id := c.MustGet("id").(int)
 
-	id, exist := c.Get("id")
-	if !exist {
+	var req db.Filters
+
+	err := c.ShouldBindQuery(&req)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid Time format.",
+		})
 		return
 	}
 
 	var slots []db.Slot
-	slots, err := db.GetSlotsByCompany(dbbb, id.(int))
+
+	//Check if start and end time were actually set. If zero then not set.
+	if req.StartTime.IsZero() || req.EndTime.IsZero() {
+		slots, err = db.GetSlotsByCompany(dbbb, id)
+	} else {
+		slots, err = db.GetSlotsByCompanyAndBetween(dbbb, id, req.StartTime, req.EndTime)
+	}
 
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Could not get slots from database!",
-			"error":   err.Error(),
 		})
+		return
 	}
-	c.JSON(200, slots)
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Success",
+		"data":    slots,
+	})
+	return
 }
 
 // UpdateSlot godoc

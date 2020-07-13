@@ -6,7 +6,7 @@ import (
 )
 
 func InitPublicRoutes(r *gin.Engine) {
-	r.POST("/store/:store/slots", api.GetStoreSlots)
+	r.GET("/store/:companyID/slots", api.GetStoreSlots)
 	r.GET("/slot/:slotID/load", api.GetSlotLoad) // amount booked and max number
 
 	r.POST("/availability", api.GetCompanyAvailability)

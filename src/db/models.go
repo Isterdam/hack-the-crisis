@@ -1,6 +1,8 @@
 package db
 
 import (
+	"time"
+
 	null "gopkg.in/guregu/null.v3"
 )
 
@@ -94,4 +96,9 @@ type SearchQuery struct {
 	Latitude  null.Float
 	Distance  uint64
 	Limit     uint64
+}
+
+type Filters struct {
+	StartTime time.Time `form:"start_time"`
+	EndTime   time.Time `form:"end_time"`
 }
