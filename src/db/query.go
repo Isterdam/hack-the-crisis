@@ -41,7 +41,7 @@ var queries = []KVP{
 												LEFT JOIN slots s ON s.start_time::date=t.day::date AND s.company_id=$1 AND s.booked < s.max
 												GROUP BY t.day::date
 												ORDER BY t.day::date`},
-	KVP{K: "booking/update/status", V: "UPDATE bookings b SET status=$3 FROM slots s WHERE b.id=$2 AND s.company_id=$1 AND b.slot_id=s.id RETURNING b.*"},
+	KVP{K: "booking/update/status", V: "UPDATE bookings b SET status=$3, status_message=$4 FROM slots s WHERE b.id=$2 AND s.company_id=$1 AND b.slot_id=s.id RETURNING b.*"},
 	KVP{K: "company/search", V: `SELECT * FROM company c WHERE (($1::float4 IS NULL OR $2::float4 IS NULL) OR (lat >= $1 AND lat <= $2) AND (lon >= $3 AND lon <= $4) 
 								AND acos(sin($5) * sin(lat) + cos($5) * cos(lat) * cos(lon - $6)) <= $7)
 								AND ($8::varchar(50) IS NULL OR LOWER(c.name) LIKE LOWER(CONCAT('%', $8, '%')))

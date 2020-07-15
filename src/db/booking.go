@@ -51,10 +51,10 @@ func GetBookingsByCompanyID(db *DB, companyID int, startTime time.Time, endTime 
 	return
 }
 
-func UpdateBookingStatus(db *DB, companyID int, bookingID int, status string) ([]Booking, error) {
+func UpdateBookingStatus(db *DB, companyID int, bookingID int, status string, statusMessage string) ([]Booking, error) {
 	stmt := db.prepared["booking/update/status"]
 	booking := []Booking{}
-	err := stmt.Select(&booking, companyID, bookingID, status)
+	err := stmt.Select(&booking, companyID, bookingID, status, statusMessage)
 
 	if err == sql.ErrNoRows {
 		return booking, nil
