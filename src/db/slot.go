@@ -15,15 +15,27 @@ func GetSlot(db *DB, slotID int) (Slot, error) {
 }
 
 func GetSlotsByCompany(db *DB, companyID int) ([]Slot, error) {
-	stmt := db.prepared["company/slot/getAll"]
+	stmt := db.prepared["company/slot/get/all"]
 	slots := []Slot{}
 	err := stmt.Select(&slots, companyID)
-
 	return slots, err
 }
 
+func GetSlotsAvailableByCompany(db *DB, companyID int) ([]Slot, error) {
+	stmt := db.prepared["company/slot/get/all/available"]
+	slots := []Slot{}
+	err := stmt.Select(&slots, companyID)
+	return slots, err
+}
 func GetSlotsByCompanyAndBetween(db *DB, companyID int, start time.Time, end time.Time) ([]Slot, error) {
 	stmt := db.prepared["company/slot/get/betweenTime"]
+	slots := []Slot{}
+	err := stmt.Select(&slots, start, end, companyID)
+	return slots, err
+}
+
+func GetSlotsAvailableByCompanyAndBetween(db *DB, companyID int, start time.Time, end time.Time) ([]Slot, error) {
+	stmt := db.prepared["company/slot/get/betweenTime/available"]
 	slots := []Slot{}
 	err := stmt.Select(&slots, start, end, companyID)
 	return slots, err

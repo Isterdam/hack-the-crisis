@@ -18,11 +18,6 @@ import (
 	"time"
 )
 
-type Interval struct {
-	StartTime time.Time `json:"start_time"`
-	EndTime   time.Time `json:"end_time"`
-}
-
 // GetStoreSlots godoc
 // @Summary Gets all slots for a certain company on a certain day.
 // @Produce json
@@ -31,33 +26,52 @@ type Interval struct {
 // @Success 200 {array} db.Slot
 // @Router /stores/{store}/day/{day}/slots [get]
 func GetStoreSlots(c *gin.Context) {
-	var interval Interval
-	err := json.NewDecoder(c.Request.Body).Decode(&interval)
-	isInter := false
+	dbbb := c.MustGet("db").(*db.DB)
 
-	if err == nil {
-		isInter = true
+	var req struct {
+		CompanyID int `uri:"companyID"`
+		//Includes start_time and end_time
+		db.Filters
 	}
 
-	storeIDStr := c.Param("store")
-	storeID, _ := strconv.Atoi(storeIDStr)
+	err := c.ShouldBindQuery(&req) //Binds with start_time and end_time in from query params
 
-	dbb, exist := c.Get("db")
-	if !exist {
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid Time Format.",
+		})
 		return
 	}
-	dbbb := dbb.(*db.DB)
+
+	err = c.ShouldBindUri(&req) //Binds with :storeID in url
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid CompanyID.",
+		})
+		return
+	}
 
 	var slots []db.Slot
 
-	if !isInter {
-		slots, err = db.GetSlotsByCompany(dbbb, storeID)
-
+	if req.StartTime.IsZero() || req.EndTime.IsZero() {
+		slots, err = db.GetSlotsAvailableByCompany(dbbb, req.CompanyID)
 	} else {
-		slots, err = db.GetSlotsByCompanyAndBetween(dbbb, storeID, interval.StartTime, interval.EndTime)
+		slots, err = db.GetSlotsAvailableByCompanyAndBetween(dbbb, req.CompanyID, req.StartTime, req.EndTime)
 	}
 
-	c.JSON(http.StatusOK, slots)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Slots could not be fetched.",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Success",
+		"data":    slots,
+	})
+	return
 }
 
 // BookTime godoc
