@@ -29,20 +29,21 @@ func AddCompany(c *gin.Context) {
 	var comp db.Company
 	err := json.NewDecoder(c.Request.Body).Decode(&comp)
 
-	fmt.Printf("%#v", comp)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"message": "Company body could not be parsed correctly!",
 			"error":   err.Error(),
 		})
+		return
 	}
 
 	comp.Sanitize()
 
 	if len(comp.Password.String) < 8 {
-		c.AbortWithStatusJSON(400, gin.H{
-			"error": "Password too short",
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "Password too short.",
 		})
+		return
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(comp.Password.String), bcrypt.MinCost)
@@ -51,6 +52,7 @@ func AddCompany(c *gin.Context) {
 			"message": "Could not generate hash for password!",
 			"error":   err.Error(),
 		})
+		return
 	}
 
 	comp.Password.String = string(hash)
@@ -64,18 +66,16 @@ func AddCompany(c *gin.Context) {
 		"ö", "o")
 	code = r.Replace(code)
 	ConfirmedCompanies[code] = comp
-	for i, d := range ConfirmedCompanies {
-		fmt.Printf("%#v %#v", i, d)
-	}
 
-	url := "www.shopalone.se" + c.Request.URL.Path + "/confirm/" + code
-	msg := "Hello " + comp.Name.String + "!\n\n" + "Please confirm your email at ShopAlone in the link below:\n\n" + url
+	url := "www.booklie.se/confirm/company/" + code
+	msg := "Hello " + comp.Name.String + "!\n\n" + "Please confirm your email at Booklie in the link below:\n\n" + url
 
 	// slow af so parallellize that shit
-	go SendMail(comp.Email.String, "Confirm your email at ShopAlone", msg)
+	go SendMail(comp.Email.String, "Confirm your email at Booklie", msg)
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Success",
 	})
+	return
 }
 
 func generateVerifyingCode(company db.Company) string {
@@ -93,34 +93,27 @@ func ConfirmCompany(c *gin.Context) {
 	code := c.Param("code")
 	code = html.EscapeString(code)
 
-	dbb, exist := c.Get("db")
-	if !exist {
-		return
-	}
-	dbbb := dbb.(*db.DB)
-	fmt.Println(code)
-	for i, d := range ConfirmedCompanies {
-		fmt.Printf("%#v %#v", i, d)
-	}
-	//fmt.Printf("%#v\n", ConfirmedCompanies[code])
+	dbbb := c.MustGet("db").(*db.DB)
 
 	if ConfirmedCompanies[code].Email.String == "" {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": "The company does not exist yet!",
+			"error": "The company does not exist yet or has already been confirmed.",
 		})
+		return
 	} else {
 		// add company verified = true here?
 		err := db.InsertCompany(dbbb, ConfirmedCompanies[code])
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 				"message": "Company could not be inserted into database!",
-				"error":   err.Error(),
 			})
+			return
 		}
 		delete(ConfirmedCompanies, code)
-		c.JSON(200, gin.H{
-			"message": "Company successfully added!",
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Success",
 		})
+		return
 	}
 }
 
