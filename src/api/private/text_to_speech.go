@@ -2,11 +2,19 @@ package api
 
 import (
 	"bytes"
+	"context"
+	"encoding/base64"
 	"encoding/json"
+	"io"
 	"net/http"
 	"strconv"
+	"strings"
+	"time"
+	"os"
 
+	"github.com/Isterdam/hack-the-crisis-backend/src/utils/random"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
 )
 
 type GTTSAudioConfig struct {
@@ -35,27 +43,35 @@ type GTTSResponse struct {
 }
 
 func TextToSpeech(c *gin.Context) {
-	data := GTTSConfig{
-		AudioConfig: GTTSAudioConfig{
-			AudioEncoding: "MP3",
-			Pitch:         0,
-			SpeakingRate:  0.66,
-		},
-		Input: GTTSInput{
-			Text: "bananer",
-		},
-		Voice: GTTSVoice{
-			LanguageCode: "sv-SE",
-			Name:         "sv-SE-Wavenet-A",
-		},
+	var ctx = context.Background()
+
+	rdb := c.MustGet("rdb").(*redis.Client)
+	var data GTTSConfig
+
+	err := c.ShouldBindJSON(&data)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid JSON.",
+		})
+		return
 	}
 
-	url := "https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=AIzaSyCggB1IlCl46gw-8Cjb6o6CMltqcb3Tnqk"
+	GTTSToken := os.Getenv("GTTS_KEY")
+
+	url := "https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=" + GTTSToken 
 
 	buf := new(bytes.Buffer)
 	json.NewEncoder(buf).Encode(data)
 
-	req, _ := http.NewRequest("POST", url, buf)
+	req, err := http.NewRequest("POST", url, buf)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Internal Server Error.",
+		})
+		return
+	}
 
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Content-Length", strconv.Itoa(buf.Len()))
@@ -65,21 +81,16 @@ func TextToSpeech(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err,
+			"message": "Internal Server Error.",
 		})
 		return
 	}
 
 	defer res.Body.Close()
 
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err,
-		})
-		return
-	}
-
 	audioResponse := GTTSResponse{}
+
+	fileID := utils.RandStringBytes(10)
 
 	err = json.NewDecoder(res.Body).Decode(&audioResponse)
 
@@ -90,9 +101,55 @@ func TextToSpeech(c *gin.Context) {
 		return
 	}
 
+	rdb.Set(ctx, fileID, audioResponse.AudioContent, time.Minute*5)
+
+	var response struct{
+		GTTSResponse
+		URL string `json:"url"`
+	}
+
+	response.AudioContent = audioResponse.AudioContent
+	response.URL = "https://api.shopalone/private/mp3/" + fileID + ".mp3"
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Success",
-		"data":    audioResponse,
+		"data":    response,
+	})
+
+}
+
+func GetMP3(c *gin.Context) {
+	fileID := c.Param("fileID")
+
+	var ctx = context.Background()
+	rdb := c.MustGet("rdb").(*redis.Client)
+
+	split := strings.Split(fileID, ".")
+
+	val, err := rdb.Get(ctx, split[0]).Result()
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"message": "File not found.",
+		})
+		return
+	}
+
+	buf, err := base64.StdEncoding.DecodeString(val)
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"message": "File not found.",
+		})
+		return
+	}
+
+	c.Header("Content-Type", "audio/mp3")
+	c.Header("Content-Length", strconv.Itoa(len(buf)))
+	c.Status(200)
+	c.Stream(func(w io.Writer) bool {
+		w.Write(buf)
+		return false
 	})
 
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/Isterdam/hack-the-crisis-backend/src/tz"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
 	_ "github.com/lib/pq"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -43,8 +44,15 @@ func main() {
 	r.Use(cors.New(config))
 	//r.Use(cors.Default())
 
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+
 	r.Use(func(c *gin.Context) {
 		c.Set("db", sql)
+		c.Set("rdb", rdb)
 	})
 
 	// localhost:8080/swagger/index.html to access documentation
