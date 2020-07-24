@@ -109,7 +109,7 @@ func TextToSpeech(c *gin.Context) {
 	}
 
 	response.AudioContent = audioResponse.AudioContent
-	response.URL = "https://api.shopalone/private/mp3/" + fileID + ".mp3"
+	response.URL = "https://api.shopalone.se/private/mp3/" + fileID + ".mp3"
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Success",
