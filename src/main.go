@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/Isterdam/hack-the-crisis-backend/src/api"
 	"github.com/Isterdam/hack-the-crisis-backend/src/db"
@@ -45,7 +46,7 @@ func main() {
 	//r.Use(cors.Default())
 
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     os.Getenv("REDISHOST") + ":6379",
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
