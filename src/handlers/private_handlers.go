@@ -11,4 +11,5 @@ func PrivateRoutes(r *gin.Engine) {
 	{
 		private.POST("/gtts", api.TextToSpeech)
 	}
+	r.GET("/private/mp3/:fileID", api.GetMP3)
 }
