@@ -54,6 +54,7 @@ func main() {
 	api.InitializeCache()
 	handlers.InitPublicRoutes(r)
 	handlers.InitCompanyRoutes(r)
+	handlers.PrivateRoutes(r)
 
 	r.Run(":8080")
 }
