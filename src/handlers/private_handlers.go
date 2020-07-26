@@ -10,6 +10,9 @@ func PrivateRoutes(r *gin.Engine) {
 	private := r.Group("/private", middleware.PrivateAuthenticationHandler)
 	{
 		private.POST("/gtts", api.TextToSpeech)
+		private.POST("/ivr/call/:callID", api.AddCallInfo)
+		private.PATCH("/ivr/call/:callID", api.UpdateCallInfo)
+		private.GET("/ivr/call/:callID", api.GetCallInfo)
 	}
 	r.GET("/private/mp3/:fileID", api.GetMP3)
 }
