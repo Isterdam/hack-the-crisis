@@ -18,24 +18,25 @@ import (
 )
 
 type GTTSAudioConfig struct {
-	AudioEncoding string  `json:"audioEncoding"`
-	Pitch         float32 `json:"pitch"`
-	SpeakingRate  float32 `json:"speakingRate"`
+	AudioEncoding string  `json:"audioEncoding,omitempty"`
+	Pitch         float32 `json:"pitch,omitempty"`
+	SpeakingRate  float32 `json:"speakingRate,omitempty"`
 }
 
 type GTTSInput struct {
-	Text string `json:"text"`
+	Text string `json:"text,omitempty"`
+	SSML string `json:"ssml,omitempty"`
 }
 
 type GTTSVoice struct {
-	LanguageCode string `json:"languageCode"`
-	Name         string `json:"name"`
+	LanguageCode string `json:"languageCode,omitempty"`
+	Name         string `json:"name,omitempty"`
 }
 
 type GTTSConfig struct {
-	AudioConfig GTTSAudioConfig `json:"audioConfig"`
-	Input       GTTSInput       `json:"input"`
-	Voice       GTTSVoice       `json:"voice"`
+	AudioConfig GTTSAudioConfig `json:"audioConfig,omitempty"`
+	Input       GTTSInput       `json:"input,omitempty"`
+	Voice       GTTSVoice       `json:"voice,omitempty"`
 }
 
 type GTTSResponse struct {
