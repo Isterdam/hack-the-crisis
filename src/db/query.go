@@ -8,7 +8,7 @@ type KVP struct {
 var queries = []KVP{
 	KVP{K: "company/get", V: "SELECT * FROM company"},
 	KVP{K: "company/getByID", V: "SELECT * FROM company WHERE id=$1"},
-	KVP{K: "book/add", V: "INSERT INTO bookings (id, slot_id, phone_number, code, first_name, last_name, visitee, message, status) VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8)"},
+	KVP{K: "book/add", V: "INSERT INTO bookings (id, slot_id, phone_number, code, first_name, last_name, visitee, message, status) VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, $7, $8) RETURNING *"},
 	KVP{K: "book/get", V: "SELECT * FROM bookings WHERE code=$1"},
 	KVP{K: "book/code/update/status", V: "UPDATE bookings SET status = lower($2) WHERE code=$1 RETURNING *"},
 	KVP{K: "book/remove", V: "DELETE FROM bookings WHERE code=$1"},

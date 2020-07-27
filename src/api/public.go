@@ -234,7 +234,7 @@ func ConfirmBookAndGetTicket(c *gin.Context) {
 		return
 	} else {
 		// booking exists but has not yet been added to database
-		err := db.InsertBooking(dbbb, ConfirmedBookings[code])
+		_, err := db.InsertBooking(dbbb, ConfirmedBookings[code])
 
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{

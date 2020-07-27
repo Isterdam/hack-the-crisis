@@ -7,11 +7,12 @@ import (
 )
 
 // reee ingen inbyggd insert-funktion
-func InsertBooking(db *DB, book Booking) error {
+func InsertBooking(db *DB, book Booking) (Booking, error) {
 	stmt := db.prepared["book/add"]
-	_, err := stmt.Exec(book.SlotID, book.PhoneNumber, book.Code, book.FirstName, book.LastName, book.Visitee, book.Message, book.Status)
+	booking := Booking{}
+	err := stmt.Get(&booking, book.SlotID, book.PhoneNumber, book.Code, book.FirstName, book.LastName, book.Visitee, book.Message, book.Status)
 
-	return err
+	return booking, err
 }
 
 func GetBooking(db *DB, code string) (Booking, error) {

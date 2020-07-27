@@ -529,7 +529,7 @@ func AddBookingAsCompany(c *gin.Context) {
 
 	booking.Sanitize()
 
-	err = db.InsertBooking(dbbb, booking)
+	_, err = db.InsertBooking(dbbb, booking)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"message": "Could not insert booking into database!",
